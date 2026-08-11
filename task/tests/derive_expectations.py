@@ -14,7 +14,15 @@ from reference_engine import dumps_ownership, dumps_timeline, reconstruct_case
 TESTS = Path(__file__).resolve().parent
 TESTS_IN = TESTS / "inputs"
 SEAL_PATH = Path("/logs/verifier/sealed_expectations.json")
-CASES = ("echo", "foxtrot")
+
+
+def discover_cases() -> tuple[str, ...]:
+    if not TESTS_IN.is_dir():
+        raise SystemExit(f"missing inputs: {TESTS_IN}")
+    names = tuple(sorted(p.name for p in TESTS_IN.iterdir() if p.is_dir()))
+    if not names:
+        raise SystemExit("no case dirs under /tests/inputs")
+    return names
 
 
 def wrong_slot_only_merge(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -133,8 +141,9 @@ def wrong_no_poison(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any
 
 def main() -> int:
     SEAL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    cases_list = discover_cases()
     cases = {}
-    for name in CASES:
+    for name in cases_list:
         tl, own = reconstruct_case(TESTS_IN / name)
         cases[name] = {
             "timeline": tl,
@@ -143,19 +152,23 @@ def main() -> int:
             "ownership_text": dumps_ownership(own),
         }
 
-    wrong_echo_raw, _ = wrong_raw_op_seq_sort(TESTS_IN / "echo")
-    wrong_echo_slot, _ = wrong_slot_only_merge(TESTS_IN / "echo")
-    _, wrong_echo_stream = wrong_stream_inherit(TESTS_IN / "echo")
-    _, wrong_echo_poison = wrong_no_poison(TESTS_IN / "echo")
-
-    payload = {
-        "cases": cases,
-        "residue": {
+    residue = {}
+    if "echo" in cases_list:
+        wrong_echo_raw, _ = wrong_raw_op_seq_sort(TESTS_IN / "echo")
+        wrong_echo_slot, _ = wrong_slot_only_merge(TESTS_IN / "echo")
+        _, wrong_echo_stream = wrong_stream_inherit(TESTS_IN / "echo")
+        _, wrong_echo_poison = wrong_no_poison(TESTS_IN / "echo")
+        residue = {
             "echo_raw_op_seq_sort_timeline": wrong_echo_raw,
             "echo_slot_only_merge_timeline": wrong_echo_slot,
             "echo_stream_inherit_ownership": wrong_echo_stream,
             "echo_no_poison_ownership": wrong_echo_poison,
-        },
+        }
+
+    payload = {
+        "case_ids": list(cases_list),
+        "cases": cases,
+        "residue": residue,
     }
     SEAL_PATH.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic vault timeline reconstruction (oracle)."""
+"""Independent verifier-side reconstruction engine (must stay under /tests)."""
 
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ def _event_id(slot: int, gen: int, op_seq: int, kind: str) -> str:
 def _chronological_ops(
     oplog: list[dict[str, Any]], txnlog: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
-    """Order oplog with at most one wrap seam and insert txnlog-only gap ops."""
+    """Order oplog by unique oldest-first circular rotation and insert txnlog-only ops."""
     if not oplog and not txnlog:
         return []
 
@@ -49,110 +49,56 @@ def _chronological_ops(
             txn_only.append(dict(row))
 
     if not by_seq and txn_only:
-        ordered = sorted(
+        return sorted(
             txn_only,
             key=lambda r: (int(r["wall"]), int(r["op_seq"]), int(r["slot"]), int(r["gen"])),
         )
-        return ordered
 
-    seqs = sorted(by_seq.keys())
-    wrap = False
-    if len(seqs) >= 2:
-        # Detect wrap: a large descending jump in the circular buffer order when
-        # sorted by wall among known rows, or classic high-then-low seq split.
-        max_seq = max(seqs)
-        min_seq = min(seqs)
-        if max_seq - min_seq > OP_SEQ_MOD // 4:
-            # Candidate wrap if both a high band and low band exist.
-            high = [s for s in seqs if s >= OP_SEQ_MOD // 2]
-            low = [s for s in seqs if s < OP_SEQ_MOD // 2]
-            if high and low:
-                wrap = True
-
-    if not wrap:
-        ordered_seqs = seqs
-    else:
-        # Rotate so chronological order starts just after the seam.
-        # Seam is between the maximum high-band seq and the minimum low-band seq.
-        high = [s for s in seqs if s >= OP_SEQ_MOD // 2]
-        low = [s for s in seqs if s < OP_SEQ_MOD // 2]
-        # Oldest band is the high band (pre-wrap), then low band (post-wrap),
-        # unless txnlog walls prove the opposite.
-        high_walls = [int(by_seq[s]["wall"]) for s in high]
-        low_walls = [int(by_seq[s]["wall"]) for s in low]
-        txn_walls_high = [
-            int(r["wall"]) for r in txn_only if int(r["op_seq"]) >= OP_SEQ_MOD // 2
-        ]
-        txn_walls_low = [
-            int(r["wall"]) for r in txn_only if int(r["op_seq"]) < OP_SEQ_MOD // 2
-        ]
-        high_anchor = min(high_walls + txn_walls_high) if (high_walls or txn_walls_high) else 0
-        low_anchor = min(low_walls + txn_walls_low) if (low_walls or txn_walls_low) else 0
-        if high_anchor <= low_anchor:
-            ordered_seqs = sorted(high) + sorted(low)
-        else:
-            ordered_seqs = sorted(low) + sorted(high)
-
+    # Oldest oplog event (by wall, then op_seq, slot, gen) starts the rotation.
+    oldest = min(
+        by_seq.values(),
+        key=lambda r: (int(r["wall"]), int(r["op_seq"]), int(r["slot"]), int(r["gen"])),
+    )
+    start = int(oldest["op_seq"])
+    ordered_seqs = sorted(by_seq.keys(), key=lambda s: (s - start) % OP_SEQ_MOD)
     ordered: list[dict[str, Any]] = [by_seq[s] for s in ordered_seqs]
 
-    # Insert txnlog-only rows by op_seq position within the rotated order.
-    if txn_only:
-        # Build position index in circular space along ordered_seqs.
-        if not ordered_seqs:
-            ordered = sorted(
-                txn_only,
-                key=lambda r: (int(r["wall"]), int(r["op_seq"]), int(r["slot"]), int(r["gen"])),
-            )
-            return ordered
+    if not txn_only:
+        return ordered
 
-        def seq_rank(seq: int) -> tuple[int, int]:
-            # Rank within rotated order: prefer matching neighbors.
-            if seq in ordered_seqs:
-                return (ordered_seqs.index(seq), 0)
-            # Insert relative to wrap rotation.
-            best_i = 0
-            best_dist = OP_SEQ_MOD
-            for i, s in enumerate(ordered_seqs):
-                dist = min((seq - s) % OP_SEQ_MOD, (s - seq) % OP_SEQ_MOD)
-                # Prefer insertion after the greatest seq that precedes `seq`
-                # along the chronological rotation.
-                if wrap:
-                    # Map to linear ranks along ordered_seqs using modular distance
-                    # from the first ordered seq.
-                    start = ordered_seqs[0]
-                    lin = (seq - start) % OP_SEQ_MOD
-                    lin_s = (s - start) % OP_SEQ_MOD
-                    if lin_s <= lin and (lin - lin_s) <= best_dist:
-                        best_dist = lin - lin_s
-                        best_i = i + 1
-                else:
-                    if s <= seq and (seq - s) <= best_dist:
-                        best_dist = seq - s
-                        best_i = i + 1
-            return (best_i, seq)
+    def seq_rank(seq: int) -> tuple[int, int, int, int]:
+        # Position along the oldest-first rotation, then stable tie-breaks.
+        return ((seq - start) % OP_SEQ_MOD, seq, 0, 0)
 
-        inserts = sorted(
-            txn_only,
-            key=lambda r: (
-                seq_rank(int(r["op_seq"]))[0],
-                int(r["wall"]),
-                int(r["op_seq"]),
-                int(r["slot"]),
-                int(r["gen"]),
-            ),
-        )
-        # Rebuild by splicing at computed ranks (stable).
-        merged: list[dict[str, Any]] = []
-        pending = list(inserts)
-        for i, row in enumerate(ordered):
-            while pending and seq_rank(int(pending[0]["op_seq"]))[0] <= i:
+    inserts = sorted(
+        txn_only,
+        key=lambda r: (
+            seq_rank(int(r["op_seq"]))[0],
+            int(r["wall"]),
+            int(r["op_seq"]),
+            int(r["slot"]),
+            int(r["gen"]),
+        ),
+    )
+    merged: list[dict[str, Any]] = []
+    pending = list(inserts)
+    for i, row in enumerate(ordered):
+        row_lin = (int(row["op_seq"]) - start) % OP_SEQ_MOD
+        while pending and ((int(pending[0]["op_seq"]) - start) % OP_SEQ_MOD) <= row_lin:
+            # Insert strictly before equal linear rank only when wall is earlier;
+            # for equal lin rank prefer wall then keep oplog row.
+            p = pending[0]
+            p_lin = (int(p["op_seq"]) - start) % OP_SEQ_MOD
+            if p_lin < row_lin or (
+                p_lin == row_lin and int(p["wall"]) < int(row["wall"])
+            ):
                 merged.append(pending.pop(0))
-            merged.append(row)
-        while pending:
-            merged.append(pending.pop(0))
-        ordered = merged
-
-    return ordered
+            else:
+                break
+        merged.append(row)
+    while pending:
+        merged.append(pending.pop(0))
+    return merged
 
 
 def _coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:

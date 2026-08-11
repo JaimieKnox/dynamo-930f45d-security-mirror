@@ -25,13 +25,15 @@ strings), `streams` (object map of stream name to content hash), `si_mtime`, `si
 ## Chronological order
 
 Oplog `op_seq` values increase until they wrap back to a low value. There is at most one wrap
-seam in a case. Chronological order is the unique rotation that places the oldest event first.
+seam in a case. Chronological order is the unique circular rotation that starts at the oldest
+oplog event. Oldest means the minimum `(wall, op_seq, slot, gen)` among oplog rows. Later events
+follow by ascending `(op_seq - start) mod 65536`.
 
-When the oplog both wraps and is missing one or more operations that appear in `txnlog.jsonl`
-with `op_seq` values spanning that seam, those txnlog-only operations are inserted into the
-timeline. Journal evidence from txnlog is authoritative for placing those missing operations
-relative to the wrap seam. Sorting raw `op_seq` as plain integers is wrong once a wrap exists.
-Ignoring txnlog when a wrap and a gap co-occur is wrong.
+When the oplog both wraps and is missing one or more operations that appear in `txnlog.jsonl`,
+those txnlog-only operations are inserted into that same rotated order by their `op_seq`
+distance from `start`. Journal evidence from txnlog is authoritative for placing those missing
+operations. Sorting raw `op_seq` as plain integers is wrong once a wrap exists. Ignoring txnlog
+when a wrap and a gap co-occur is wrong.
 
 ## Rename coalesce
 
