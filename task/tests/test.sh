@@ -1,17 +1,42 @@
 #!/bin/bash
-#
-# Runs inside the SHARED environment image (environment/Dockerfile) — canonical TB2 has no
-# separate verifier image. pytest is baked into environment/Dockerfile, so do NOT install or
-# download anything here — verify-time setup is rejected by the static checks.
-#
-# Put your pytest files (e.g. test_outputs.py) in tests/ and run them below. Harbor overlays
-# tests/ at /tests only at verify time, so keep ground truth / expected outputs in tests/
-# (never in environment/, where the agent could read them).
-# --ctrf writes a standard JSON report; write 1/0 to /logs/verifier/reward.txt.
-pytest --ctrf /logs/verifier/ctrf.json /tests/test_outputs.py -rA
+# Verifier entry. Always write reward.txt. Install nothing at verify time.
+# Phase A seals expectations from the independent reference engine and removes it.
+# Phase B grades agent outputs with no oracle import (R181).
+set -u
 
-if [ $? -eq 0 ]; then
-  echo 1 > /logs/verifier/reward.txt
+mkdir -p /logs/verifier
+reward=/logs/verifier/reward.txt
+
+# Isolate pytest from agent-writable trees (R193 / R210).
+export PYTHONPATH=/tests
+export PYTHONSAFEPATH=1
+cd /tests || {
+  echo 0 > "$reward"
+  exit 0
+}
+
+set +e
+python3 -B /tests/derive_expectations.py
+phase_one=$?
+set -e
+
+# Belt-and-braces: ensure reference modules are gone even if derive crashed mid-way.
+rm -f /tests/reference_engine.py /tests/wrong_models.py /tests/derive_expectations.py
+find /tests -maxdepth 2 -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
+
+if [ "$phase_one" -eq 0 ]; then
+  set +e
+  python3 -P -m pytest --ctrf /logs/verifier/ctrf.json /tests/test_outputs.py -rA
+  rc=$?
+  set -e
 else
-  echo 0 > /logs/verifier/reward.txt
+  echo "phase A failed with status $phase_one"
+  rc=$phase_one
 fi
+
+if [ "$rc" -eq 0 ]; then
+  echo 1 > "$reward"
+else
+  echo 0 > "$reward"
+fi
+exit 0

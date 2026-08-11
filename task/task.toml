@@ -1,38 +1,32 @@
-artifacts = []  # paths the verifier reads from the agent (e.g. ["/app/output.json"]) — must be above the first [section]
+artifacts = ["/app/output/bravo/timeline.json", "/app/output/bravo/ownership.json", "/app/output/charlie/timeline.json", "/app/output/charlie/ownership.json", "/app/output/delta/timeline.json", "/app/output/delta/ownership.json"]
 
 [task]
-name = "dynamo/your-task-name"  # required format: org/name (Harbor needs the slash); name part lowercase kebab-case, <=3 words
-description = ""                 # one-line summary of the task
+name = "dynamo/vault-timeline"
+description = "Reconstruct reincarnated host artifact timelines from a wrapping oplog vault with txnlog gaps and path poison."
 
 [metadata]
-# --- Pre-seeded for you when this repo was created — DO NOT EDIT ---
-category = "Security"                      # diversity category, assigned to your task by the Dynamo team
-subcategory = "Digital Forensics"                   # diversity subcategory, assigned by the Dynamo team
-# --- Fixed for this dataset — LEAVE AS-IS ---
-model_tested = "Opus-4.8"           # difficulty-benchmarking model (do not change)
-agent_tested = "Terminus-2"        # difficulty-benchmarking agent (do not change)
-# --- You fill these in ---
-# task_objective / artifact_type: pick from .dynamo/diversity-taxonomy.toml (lowercase snake_case).
-task_objective = []                # e.g. ["implement", "debug"]
-artifact_type = []                 # e.g. ["codebase", "configuration_file"]
-expert_time_estimate_hours = 0     # best-case hours for a focused domain expert with the intended insight
-difficulty_explanation = ""        # why this task is hard for agents and humans
-solution_explanation = ""          # high-level approach and key insights
-verification_explanation = ""      # how the tests verify correctness
+category = "Security"
+subcategory = "Digital Forensics"
+model_tested = "Opus-4.8"
+agent_tested = "Terminus-2"
+task_objective = ["analyze", "generate"]
+artifact_type = ["security_artifact", "generated_output_artifact", "dataset_or_tabular_file"]
+expert_time_estimate_hours = 1.0
+difficulty_explanation = "Reconstruct a host artifact timeline from a synthetic multi-source forensic vault. The vault ships a current object table, a circular oplog, and a short transactional gap log. Difficulty is identity and authority composition across reincarnated slots. A slot number alone is not an object. Generation must travel with every join. Rename storms must coalesce under closed fit-casebook rules. Journal wall time beats object-table SI times when journal evidence exists for that operation. Oplog sequence integers wrap, so naive numeric sort invents inverted history. Multi-name bindings and named streams must stay attached to the correct incarnation. Seed and fit packs resolve cleanly under a path-join or slot-only reading, so the wrong method looks finished. Held cases reincarnate slots after delete-then-create, share path strings across rename-over, and wrap the oplog counter. DFIR analysts who rebuild host timelines from multiple filesystem-style artifacts do this work when correlating current object tables with journals and transaction logs after an incident. All corpus data is synthetic and built so reincarnation, wrap, coalesce, and authority disagreements are realistically challenging without copying any public case."
+solution_explanation = "Build a deterministic reconstruction engine that loads the vault and fit casebook, induces the closed rules for identity, coalesce, time authority, and wrap handling from those examples, then applies them to probe and production packs. Key insight: treat every object as the pair of slot and generation, carry that identity through every join, coalesce renames into logical moves only when the casebook predicates match, prefer journal wall time when an operation has journal evidence, and reconstruct circular oplog order by locating the single wrap seam rather than sorting raw integers. Path conflicts without a clean transfer poison that path with no revive. Streams do not inherit across generation boundaries."
+verification_explanation = "The agent writes graded JSON artifacts under /app/output, including an ordered incarnation timeline and a per-incarnation stream ownership map with exact schemas named in the instruction and CONTRACT. The verifier recomputes expecteds from sealed /tests/inputs fixtures under the same closed rules, then compares with strict byte equality on serialized JSON (2-space indent, ensure_ascii false, trailing newline, documented key order). No numeric tolerance. Wrong joins, wrong wrap handling, stream inheritance, or path revive after poison change discrete fields and fail. Executable wrong-model contrasts in tests confirm residue divergence."
 
 [verifier]
-timeout_sec = 120.0                # increase based on your test suite's runtime demands
-# Canonical TB2: the verifier runs in the environment image (no separate tests/Dockerfile).
-# Harbor overlays tests/ at verify time; leave environment_mode unset for this shared model.
+timeout_sec = 180.0
 
 [agent]
-timeout_sec = 120.0                # raise for hard tasks — agents may run for many minutes or hours
+timeout_sec = 3600.0
 
 [environment]
-build_timeout_sec = 600.0          # max seconds for the Docker build
-cpus = 1                           # increase for parallel/compute-heavy workloads
-memory_mb = 2048                   # increase for large datasets or in-memory processing
-storage_mb = 10240                 # increase for tasks with large files or build artifacts
-gpus = 0                           # max 1, expect H100
-allow_internet = true              # open internet is available to the agent
-mcp_servers = []                   # optional MCP servers to expose to the agent
+build_timeout_sec = 600.0
+cpus = 2
+memory_mb = 4096
+storage_mb = 10240
+gpus = 0
+allow_internet = true
+mcp_servers = []

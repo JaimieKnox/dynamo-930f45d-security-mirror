@@ -1,17 +1,10 @@
-<!--
-  This file is the PROMPT handed verbatim to the model that will attempt your task.
-  Replace everything in this comment with your task instruction, then delete the comment.
+Reconstruct forensic timelines for every case directory under `/app/data/work/`. The normative contract is `/app/data/docs/CONTRACT.md`. A disclosed fit pack with worked expecteds is at `/app/data/fit/alpha/` (ledgers plus `expected/timeline.json` and `expected/ownership.json`). Induce the closed rules from that contract and fit pack, then apply them to each work case.
 
-  Guidelines:
-  - Write it yourself, as a domain expert. Do NOT generate it with an LLM.
-  - It's a prompt, not a document — no title, no section headers, no excessive Markdown.
-  - Write it the way you'd brief a skilled colleague.
-  - Use absolute paths (e.g. /app/output.txt), never relative paths.
-  - Be explicit about every expected output file and its exact format/schema.
-  - Include everything the agent needs to solve the task — and nothing more (don't
-    hint at or reveal your solution).
-  - Keep it concise (<= 1500 tokens). State the goal and required outputs; skip
-    backstory, roleplay, and filler.
--->
+For each work case `<id>`, write `/app/output/<id>/timeline.json` and `/app/output/<id>/ownership.json` exactly as specified in the contract (schemas, sort orders, identity pairing of slot with gen, rename coalesce to MOVE, journal wall authority, circular oplog wrap with txnlog gap fills, stream non-inheritance across gen, and path poison with no revive).
 
-Replace this file with your task instruction.
+Success criteria:
+1. Every work case directory name under `/app/data/work/` has both output files under `/app/output/<id>/`.
+2. Each `timeline.json` matches the contract schema, key order, and JSON text shape.
+3. Each `ownership.json` matches the contract schema, key order, sorting, and JSON text shape.
+4. Timeline event identities, kinds, times, and ordering match the contract for every work case.
+5. Ownership incarnation names, streams, and `poisoned_paths` match the contract for every work case.

@@ -1,0 +1,65 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 5,
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1786465655.3516736,
+            "stop": 1786465655.4880059
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_output_files_exist_for_every_work_case",
+                "status": "passed",
+                "duration": 0.0015249240095727146,
+                "start": 1786465655.4687946,
+                "stop": 1786465655.470808,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_timeline_schema_and_byte_contract",
+                "status": "passed",
+                "duration": 0.0035393310099607334,
+                "start": 1786465655.4716582,
+                "stop": 1786465655.4757628,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_ownership_schema_and_byte_contract",
+                "status": "passed",
+                "duration": 0.003001705015776679,
+                "start": 1786465655.476365,
+                "stop": 1786465655.4800584,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_timeline_event_identity_and_order",
+                "status": "passed",
+                "duration": 0.0026182559959124774,
+                "start": 1786465655.4807513,
+                "stop": 1786465655.4839225,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_ownership_incarnations_streams_and_poison",
+                "status": "passed",
+                "duration": 0.0024516410048818216,
+                "start": 1786465655.4844654,
+                "stop": 1786465655.4875174,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            }
+        ]
+    }
+}

@@ -1,0 +1,4 @@
+{"op_seq": 10, "slot": 20, "gen": 1, "kind": "CREATE", "wall": 100, "name": "var/payload.bin", "stream": "$DATA", "content": "h_old"}
+{"op_seq": 11, "slot": 20, "gen": 1, "kind": "CREATE_STREAM", "wall": 120, "name": "var/payload.bin", "stream": "meta", "content": "h_meta"}
+{"op_seq": 12, "slot": 20, "gen": 1, "kind": "DELETE", "wall": 200, "name": "var/payload.bin", "stream": null, "content": null}
+{"op_seq": 13, "slot": 20, "gen": 2, "kind": "CREATE", "wall": 700, "name": "var/payload.bin", "stream": "$DATA", "content": "h_new"}

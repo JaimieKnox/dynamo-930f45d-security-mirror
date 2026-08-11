@@ -1,11 +1,127 @@
-"""
-Use this file to define pytest tests that verify the outputs of the task.
+"""Verifier for vault timeline reconstruction outputs.
 
-This file will be copied to /tests/test_outputs.py and run by the /tests/test.sh file
-from the working directory.
+Residue contrasts are sealed in phase A (wrong_models / wrong sibling axes).
 """
 
+from __future__ import annotations
 
-def test_outputs():
-    """Test that the outputs are correct."""
-    pass
+import json
+from pathlib import Path
+
+CASES = ("bravo", "charlie", "delta")
+OUT_ROOT = Path("/app/output")
+SEAL_PATH = Path("/logs/verifier/sealed_expectations.json")
+EVENT_KEYS = [
+    "event_id",
+    "slot",
+    "gen",
+    "kind",
+    "time",
+    "op_seq",
+    "name",
+    "name_from",
+    "name_to",
+    "stream",
+    "content",
+]
+
+
+def _load_seal() -> dict:
+    assert SEAL_PATH.is_file(), f"sealed expectations missing: {SEAL_PATH}"
+    return json.loads(SEAL_PATH.read_text(encoding="utf-8"))
+
+
+def _read_text(path: Path) -> str:
+    assert path.is_file(), f"missing ordinary file: {path}"
+    assert not path.is_symlink(), f"symlinked output rejected: {path}"
+    resolved = path.resolve()
+    assert str(resolved).startswith("/app/"), f"output escaped /app: {resolved}"
+    return path.read_text(encoding="utf-8")
+
+
+def _expected(seal: dict, case: str):
+    blob = seal["cases"][case]
+    return blob["timeline"], blob["ownership"]
+
+
+def test_output_files_exist_for_every_work_case():
+    """Success criterion 1: each work case has timeline.json and ownership.json under /app/output."""
+    for case in CASES:
+        tl = OUT_ROOT / case / "timeline.json"
+        own = OUT_ROOT / case / "ownership.json"
+        assert tl.is_file() and not tl.is_symlink()
+        assert own.is_file() and not own.is_symlink()
+
+
+def test_timeline_schema_and_byte_contract():
+    """Success criterion 2: timeline events match the documented schema, key order, and JSON text shape."""
+    seal = _load_seal()
+    for case in CASES:
+        raw = _read_text(OUT_ROOT / case / "timeline.json")
+        data = json.loads(raw)
+        assert isinstance(data, list)
+        for ev in data:
+            assert list(ev.keys()) == EVENT_KEYS
+            assert type(ev["slot"]) is int
+            assert type(ev["gen"]) is int
+            assert type(ev["time"]) is int
+            assert type(ev["op_seq"]) is int
+            assert isinstance(ev["kind"], str)
+            assert isinstance(ev["event_id"], str)
+        assert raw == seal["cases"][case]["timeline_text"]
+
+
+def test_ownership_schema_and_byte_contract():
+    """Success criterion 3: ownership matches schema, key order, sorting, and JSON text shape."""
+    seal = _load_seal()
+    for case in CASES:
+        raw = _read_text(OUT_ROOT / case / "ownership.json")
+        data = json.loads(raw)
+        assert list(data.keys()) == ["incarnations", "poisoned_paths"]
+        assert isinstance(data["incarnations"], list)
+        assert isinstance(data["poisoned_paths"], list)
+        for inc in data["incarnations"]:
+            assert list(inc.keys()) == ["id", "slot", "gen", "names", "streams"]
+            assert type(inc["slot"]) is int
+            assert type(inc["gen"]) is int
+            assert isinstance(inc["names"], list)
+            assert isinstance(inc["streams"], dict)
+            assert list(inc["streams"].keys()) == sorted(inc["streams"].keys())
+        assert data["poisoned_paths"] == sorted(data["poisoned_paths"])
+        assert raw == seal["cases"][case]["ownership_text"]
+
+
+def test_timeline_event_identity_and_order():
+    """Success criterion 4: event identities, kinds, times, and sort order match the contract."""
+    seal = _load_seal()
+    for case in CASES:
+        agent = json.loads(_read_text(OUT_ROOT / case / "timeline.json"))
+        exp_tl, _ = _expected(seal, case)
+        assert agent == exp_tl
+        times = [(e["time"], e["op_seq"], e["event_id"]) for e in agent]
+        assert times == sorted(times)
+    # Residue: raw op_seq sort without txnlog gap fill diverges on delta.
+    wrong_d_tl = seal["residue"]["delta_raw_op_seq_sort_timeline"]
+    exp_d_tl, _ = _expected(seal, "delta")
+    assert wrong_d_tl != exp_d_tl
+    assert any(e["op_seq"] == 65533 for e in exp_d_tl)
+    # Residue: slot-only merge diverges on bravo timeline identities.
+    wrong_tl = seal["residue"]["bravo_slot_only_merge_timeline"]
+    exp_tl, _ = _expected(seal, "bravo")
+    assert wrong_tl != exp_tl
+
+
+def test_ownership_incarnations_streams_and_poison():
+    """Success criterion 5: incarnation names, streams, and poisoned_paths match the contract."""
+    seal = _load_seal()
+    for case in CASES:
+        agent = json.loads(_read_text(OUT_ROOT / case / "ownership.json"))
+        _, exp_own = _expected(seal, case)
+        assert agent == exp_own
+    wrong_br = seal["residue"]["bravo_stream_inherit_ownership"]
+    _, exp_br = _expected(seal, "bravo")
+    assert wrong_br != exp_br
+    wrong_ch = seal["residue"]["charlie_no_poison_ownership"]
+    _, exp_ch = _expected(seal, "charlie")
+    assert wrong_ch != exp_ch
+    assert exp_ch["poisoned_paths"] == ["shared/collide.txt"]

@@ -1,0 +1,12 @@
+{"op_seq": 65530, "slot": 10, "gen": 1, "kind": "CREATE", "wall": 100, "name": "docs/report.txt", "stream": "$DATA", "content": "h_report"}
+{"op_seq": 65531, "slot": 10, "gen": 1, "kind": "CREATE_STREAM", "wall": 120, "name": "docs/report.txt", "stream": "meta", "content": "h_meta"}
+{"op_seq": 65532, "slot": 11, "gen": 1, "kind": "CREATE", "wall": 200, "name": "docs/notes.txt", "stream": "$DATA", "content": "h_notes"}
+{"op_seq": 65534, "slot": 10, "gen": 1, "kind": "RENAME_OLD", "wall": 250, "name": "docs/report.txt", "stream": null, "content": null}
+{"op_seq": 65535, "slot": 10, "gen": 1, "kind": "RENAME_NEW", "wall": 250, "name": "docs/report_final.txt", "stream": null, "content": null}
+{"op_seq": 0, "slot": 10, "gen": 1, "kind": "DELETE", "wall": 350, "name": "docs/report_final.txt", "stream": null, "content": null}
+{"op_seq": 1, "slot": 10, "gen": 2, "kind": "CREATE", "wall": 400, "name": "docs/report_v2.txt", "stream": "$DATA", "content": "h_v2"}
+{"op_seq": 2, "slot": 12, "gen": 1, "kind": "CREATE", "wall": 500, "name": "shared/fit_collide.txt", "stream": "$DATA", "content": "h_pa"}
+{"op_seq": 3, "slot": 13, "gen": 1, "kind": "CREATE", "wall": 510, "name": "shared/fit_collide.txt", "stream": "$DATA", "content": "h_pb"}
+{"op_seq": 4, "slot": 14, "gen": 1, "kind": "CREATE", "wall": 520, "name": "shared/fit_collide.txt", "stream": "$DATA", "content": "h_pc"}
+{"op_seq": 5, "slot": 14, "gen": 1, "kind": "WRITE", "wall": 530, "name": "shared/fit_collide.txt", "stream": "$DATA", "content": "h_pc2"}
+{"op_seq": 6, "slot": 11, "gen": 1, "kind": "CREATE_STREAM", "wall": 540, "name": "docs/notes.txt", "stream": "zone", "content": "h_zone"}

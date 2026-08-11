@@ -1,0 +1,26 @@
+{
+  "incarnations": [
+    {
+      "id": "20:1",
+      "slot": 20,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "h_old",
+        "meta": "h_meta"
+      }
+    },
+    {
+      "id": "20:2",
+      "slot": 20,
+      "gen": 2,
+      "names": [
+        "var/payload.bin"
+      ],
+      "streams": {
+        "$DATA": "h_new"
+      }
+    }
+  ],
+  "poisoned_paths": []
+}

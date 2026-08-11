@@ -1,0 +1,34 @@
+{
+  "incarnations": [
+    {
+      "id": "30:1",
+      "slot": 30,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "h_a"
+      }
+    },
+    {
+      "id": "31:1",
+      "slot": 31,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "h_b"
+      }
+    },
+    {
+      "id": "32:1",
+      "slot": 32,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "h_c2"
+      }
+    }
+  ],
+  "poisoned_paths": [
+    "shared/collide.txt"
+  ]
+}

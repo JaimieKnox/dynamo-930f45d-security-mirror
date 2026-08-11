@@ -1,0 +1,80 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 5,
+            "passed": 0,
+            "failed": 5,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1786465756.145592,
+            "stop": 1786465756.337475
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_output_files_exist_for_every_work_case",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.001540903002023697,
+                "start": 1786465756.250357,
+                "stop": 1786465756.2840412,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_output_files_exist_for_every_work_case():\n        \"\"\"Success criterion 1: each work case has timeline.json and ownership.json under /app/output.\"\"\"\n        for case in CASES:\n            tl = OUT_ROOT / case / \"timeline.json\"\n            own = OUT_ROOT / case / \"ownership.json\"\n>           assert tl.is_file() and not tl.is_symlink()\nE           AssertionError: assert (False)\nE            +  where False = is_file()\nE            +    where is_file = PosixPath('/app/output/bravo/timeline.json').is_file\n\ntest_outputs.py:52: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_timeline_schema_and_byte_contract",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0019501470087561756,
+                "start": 1786465756.285032,
+                "stop": 1786465756.298735,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_timeline_schema_and_byte_contract():\n        \"\"\"Success criterion 2: timeline events match the documented schema, key order, and JSON text shape.\"\"\"\n        seal = _load_seal()\n        for case in CASES:\n>           raw = _read_text(OUT_ROOT / case / \"timeline.json\")\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntest_outputs.py:60: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\npath = PosixPath('/app/output/bravo/timeline.json')\n\n    def _read_text(path: Path) -> str:\n>       assert path.is_file(), f\"missing ordinary file: {path}\"\nE       AssertionError: missing ordinary file: /app/output/bravo/timeline.json\nE       assert False\nE        +  where False = is_file()\nE        +    where is_file = PosixPath('/app/output/bravo/timeline.json').is_file\n\ntest_outputs.py:35: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_ownership_schema_and_byte_contract",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0018110980017809197,
+                "start": 1786465756.2992885,
+                "stop": 1786465756.3101943,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_ownership_schema_and_byte_contract():\n        \"\"\"Success criterion 3: ownership matches schema, key order, sorting, and JSON text shape.\"\"\"\n        seal = _load_seal()\n        for case in CASES:\n>           raw = _read_text(OUT_ROOT / case / \"ownership.json\")\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntest_outputs.py:78: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\npath = PosixPath('/app/output/bravo/ownership.json')\n\n    def _read_text(path: Path) -> str:\n>       assert path.is_file(), f\"missing ordinary file: {path}\"\nE       AssertionError: missing ordinary file: /app/output/bravo/ownership.json\nE       assert False\nE        +  where False = is_file()\nE        +    where is_file = PosixPath('/app/output/bravo/ownership.json').is_file\n\ntest_outputs.py:35: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_timeline_event_identity_and_order",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.0017820180219132453,
+                "start": 1786465756.3106658,
+                "stop": 1786465756.3223636,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_timeline_event_identity_and_order():\n        \"\"\"Success criterion 4: event identities, kinds, times, and sort order match the contract.\"\"\"\n        seal = _load_seal()\n        for case in CASES:\n>           agent = json.loads(_read_text(OUT_ROOT / case / \"timeline.json\"))\n                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntest_outputs.py:98: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\npath = PosixPath('/app/output/bravo/timeline.json')\n\n    def _read_text(path: Path) -> str:\n>       assert path.is_file(), f\"missing ordinary file: {path}\"\nE       AssertionError: missing ordinary file: /app/output/bravo/timeline.json\nE       assert False\nE        +  where False = is_file()\nE        +    where is_file = PosixPath('/app/output/bravo/timeline.json').is_file\n\ntest_outputs.py:35: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            },
+            {
+                "name": "test_outputs.py::test_ownership_incarnations_streams_and_poison",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.001770445000147447,
+                "start": 1786465756.3228526,
+                "stop": 1786465756.3369687,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_ownership_incarnations_streams_and_poison():\n        \"\"\"Success criterion 5: incarnation names, streams, and poisoned_paths match the contract.\"\"\"\n        seal = _load_seal()\n        for case in CASES:\n>           agent = json.loads(_read_text(OUT_ROOT / case / \"ownership.json\"))\n                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntest_outputs.py:118: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\npath = PosixPath('/app/output/bravo/ownership.json')\n\n    def _read_text(path: Path) -> str:\n>       assert path.is_file(), f\"missing ordinary file: {path}\"\nE       AssertionError: missing ordinary file: /app/output/bravo/ownership.json\nE       assert False\nE        +  where False = is_file()\nE        +    where is_file = PosixPath('/app/output/bravo/ownership.json').is_file\n\ntest_outputs.py:35: AssertionError",
+                "message": "The test failed in the call phase due to an assertion error"
+            }
+        ]
+    }
+}

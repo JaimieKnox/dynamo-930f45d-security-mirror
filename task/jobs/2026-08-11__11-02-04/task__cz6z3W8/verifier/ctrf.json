@@ -1,0 +1,68 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 5,
+            "passed": 4,
+            "failed": 1,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1786464191.862094,
+            "stop": 1786464192.084499
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_output_files_exist_for_every_work_case",
+                "status": "passed",
+                "duration": 0.0032706649944884703,
+                "start": 1786464192.005813,
+                "stop": 1786464192.0111544,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_timeline_schema_and_byte_contract",
+                "status": "passed",
+                "duration": 0.006196522997925058,
+                "start": 1786464192.0118535,
+                "stop": 1786464192.0187094,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_ownership_schema_and_byte_contract",
+                "status": "passed",
+                "duration": 0.004240975991706364,
+                "start": 1786464192.01922,
+                "stop": 1786464192.0238209,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_timeline_event_identity_and_order",
+                "status": "passed",
+                "duration": 0.009003580998978578,
+                "start": 1786464192.0241954,
+                "stop": 1786464192.033841,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_ownership_incarnations_streams_and_poison",
+                "status": "failed",
+                "raw_status": "call_failed",
+                "duration": 0.007556395008577965,
+                "start": 1786464192.03446,
+                "stop": 1786464192.0838099,
+                "retries": 0,
+                "file_path": "test_outputs.py",
+                "trace": "def test_ownership_incarnations_streams_and_poison():\n        \"\"\"Success criterion 5: incarnation names, streams, and poisoned_paths match the contract.\"\"\"\n        for case in CASES:\n            agent = json.loads(_read_text(OUT_ROOT / case / \"ownership.json\"))\n            _, exp_own = _expected(case)\n            assert agent == exp_own\n        _, wrong_br = wrong_stream_inherit(TESTS_IN / \"bravo\")\n        _, exp_br = _expected(\"bravo\")\n>       assert wrong_br != exp_b\n                           ^^^^^\nE       NameError: name 'exp_b' is not defined\n\ntest_outputs.py:120: NameError",
+                "message": "The test failed in the call phase"
+            }
+        ]
+    }
+}

@@ -1,0 +1,6 @@
+{"slot": 10, "gen": 1, "names": [], "streams": {}, "si_mtime": 9999, "si_ctime": 9999, "si_btime": 100}
+{"slot": 10, "gen": 2, "names": ["docs/report_v2.txt"], "streams": {"$DATA": "h_v2"}, "si_mtime": 500, "si_ctime": 500, "si_btime": 400}
+{"slot": 11, "gen": 1, "names": ["docs/notes.txt"], "streams": {"$DATA": "h_notes", "zone": "h_zone"}, "si_mtime": 300, "si_ctime": 300, "si_btime": 200}
+{"slot": 12, "gen": 1, "names": [], "streams": {"$DATA": "h_pa"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 13, "gen": 1, "names": [], "streams": {"$DATA": "h_pb"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 14, "gen": 1, "names": [], "streams": {"$DATA": "h_pc2"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}

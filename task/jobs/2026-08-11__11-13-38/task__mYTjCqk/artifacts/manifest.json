@@ -1,0 +1,51 @@
+[
+  {
+    "source": "/logs/artifacts",
+    "destination": "artifacts/logs/artifacts",
+    "type": "directory",
+    "status": "empty",
+    "service": null
+  },
+  {
+    "source": "/app/output/bravo/timeline.json",
+    "destination": "artifacts/app/output/bravo/timeline.json",
+    "type": "file",
+    "status": "ok",
+    "service": null
+  },
+  {
+    "source": "/app/output/bravo/ownership.json",
+    "destination": "artifacts/app/output/bravo/ownership.json",
+    "type": "file",
+    "status": "ok",
+    "service": null
+  },
+  {
+    "source": "/app/output/charlie/timeline.json",
+    "destination": "artifacts/app/output/charlie/timeline.json",
+    "type": "file",
+    "status": "ok",
+    "service": null
+  },
+  {
+    "source": "/app/output/charlie/ownership.json",
+    "destination": "artifacts/app/output/charlie/ownership.json",
+    "type": "file",
+    "status": "ok",
+    "service": null
+  },
+  {
+    "source": "/app/output/delta/timeline.json",
+    "destination": "artifacts/app/output/delta/timeline.json",
+    "type": "file",
+    "status": "ok",
+    "service": null
+  },
+  {
+    "source": "/app/output/delta/ownership.json",
+    "destination": "artifacts/app/output/delta/ownership.json",
+    "type": "file",
+    "status": "ok",
+    "service": null
+  }
+]
