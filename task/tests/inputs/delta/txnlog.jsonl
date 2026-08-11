@@ -1,1 +1,0 @@
-{"op_seq": 65533, "slot": 40, "gen": 1, "kind": "WRITE", "wall": 30, "name": "db/ledger.dat", "stream": "$DATA", "content": "h2", "txn_id": 1}

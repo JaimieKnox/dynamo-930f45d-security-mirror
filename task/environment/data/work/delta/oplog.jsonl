@@ -1,5 +1,0 @@
-{"op_seq": 65531, "slot": 40, "gen": 1, "kind": "CREATE", "wall": 10, "name": "db/ledger.dat", "stream": "$DATA", "content": "h0"}
-{"op_seq": 65532, "slot": 40, "gen": 1, "kind": "WRITE", "wall": 20, "name": "db/ledger.dat", "stream": "$DATA", "content": "h1"}
-{"op_seq": 65534, "slot": 40, "gen": 1, "kind": "WRITE", "wall": 40, "name": "db/ledger.dat", "stream": "$DATA", "content": "h3"}
-{"op_seq": 65535, "slot": 40, "gen": 1, "kind": "WRITE", "wall": 50, "name": "db/ledger.dat", "stream": "$DATA", "content": "h4"}
-{"op_seq": 0, "slot": 40, "gen": 1, "kind": "WRITE", "wall": 60, "name": "db/ledger.dat", "stream": "$DATA", "content": "h_final"}

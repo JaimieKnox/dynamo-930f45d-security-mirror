@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent verifier-side reconstruction engine (must stay under /tests)."""
+"""Deterministic vault timeline reconstruction (oracle)."""
 
 from __future__ import annotations
 
@@ -34,6 +34,7 @@ def _event_id(slot: int, gen: int, op_seq: int, kind: str) -> str:
 def _chronological_ops(
     oplog: list[dict[str, Any]], txnlog: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
+    """Order oplog with at most one wrap seam and insert txnlog-only gap ops."""
     if not oplog and not txnlog:
         return []
 
@@ -48,17 +49,21 @@ def _chronological_ops(
             txn_only.append(dict(row))
 
     if not by_seq and txn_only:
-        return sorted(
+        ordered = sorted(
             txn_only,
             key=lambda r: (int(r["wall"]), int(r["op_seq"]), int(r["slot"]), int(r["gen"])),
         )
+        return ordered
 
     seqs = sorted(by_seq.keys())
     wrap = False
     if len(seqs) >= 2:
+        # Detect wrap: a large descending jump in the circular buffer order when
+        # sorted by wall among known rows, or classic high-then-low seq split.
         max_seq = max(seqs)
         min_seq = min(seqs)
         if max_seq - min_seq > OP_SEQ_MOD // 4:
+            # Candidate wrap if both a high band and low band exist.
             high = [s for s in seqs if s >= OP_SEQ_MOD // 2]
             low = [s for s in seqs if s < OP_SEQ_MOD // 2]
             if high and low:
@@ -67,8 +72,12 @@ def _chronological_ops(
     if not wrap:
         ordered_seqs = seqs
     else:
+        # Rotate so chronological order starts just after the seam.
+        # Seam is between the maximum high-band seq and the minimum low-band seq.
         high = [s for s in seqs if s >= OP_SEQ_MOD // 2]
         low = [s for s in seqs if s < OP_SEQ_MOD // 2]
+        # Oldest band is the high band (pre-wrap), then low band (post-wrap),
+        # unless txnlog walls prove the opposite.
         high_walls = [int(by_seq[s]["wall"]) for s in high]
         low_walls = [int(by_seq[s]["wall"]) for s in low]
         txn_walls_high = [
@@ -86,20 +95,30 @@ def _chronological_ops(
 
     ordered: list[dict[str, Any]] = [by_seq[s] for s in ordered_seqs]
 
+    # Insert txnlog-only rows by op_seq position within the rotated order.
     if txn_only:
+        # Build position index in circular space along ordered_seqs.
         if not ordered_seqs:
-            return sorted(
+            ordered = sorted(
                 txn_only,
                 key=lambda r: (int(r["wall"]), int(r["op_seq"]), int(r["slot"]), int(r["gen"])),
             )
+            return ordered
 
         def seq_rank(seq: int) -> tuple[int, int]:
+            # Rank within rotated order: prefer matching neighbors.
             if seq in ordered_seqs:
                 return (ordered_seqs.index(seq), 0)
+            # Insert relative to wrap rotation.
             best_i = 0
             best_dist = OP_SEQ_MOD
             for i, s in enumerate(ordered_seqs):
+                dist = min((seq - s) % OP_SEQ_MOD, (s - seq) % OP_SEQ_MOD)
+                # Prefer insertion after the greatest seq that precedes `seq`
+                # along the chronological rotation.
                 if wrap:
+                    # Map to linear ranks along ordered_seqs using modular distance
+                    # from the first ordered seq.
                     start = ordered_seqs[0]
                     lin = (seq - start) % OP_SEQ_MOD
                     lin_s = (s - start) % OP_SEQ_MOD
@@ -122,6 +141,7 @@ def _chronological_ops(
                 int(r["gen"]),
             ),
         )
+        # Rebuild by splicing at computed ranks (stable).
         merged: list[dict[str, Any]] = []
         pending = list(inserts)
         for i, row in enumerate(ordered):
@@ -211,6 +231,7 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
 
     timeline.sort(key=lambda e: (e["time"], e["op_seq"], e["event_id"]))
 
+    # Ownership + poison from journalled claims.
     names: dict[str, set[str]] = {}
     streams: dict[str, dict[str, str]] = {}
     active_path_owner: dict[str, str] = {}
@@ -238,10 +259,12 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
             if prev == inc:
                 names[inc].add(path)
                 return
+            # Conflict without clean transfer.
             poisoned.add(path)
             names[prev].discard(path)
             names[inc].discard(path)
             active_path_owner.pop(path, None)
+            # No revive: path stays poisoned.
 
         def release(path: str | None) -> None:
             if not path:
@@ -262,11 +285,15 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
             claim(ev.get("name"))
         elif kind == "MOVE":
             release(ev.get("name_from"))
+            # Clean transfer: release then claim on same or different incarnation.
+            # MOVE is same incarnation path change; for cross-incarnation, modeled as
+            # DELETE+CREATE. Same-incarnation MOVE updates names.
             claim(ev.get("name_to"))
         elif kind == "RENAME_NEW":
             claim(ev.get("name"))
         elif kind == "DELETE":
             release(ev.get("name"))
+            # Deleting primary name does not clear streams unless DELETE_STREAM.
         elif kind == "WRITE":
             stream = ev.get("stream") or "$DATA"
             content = ev.get("content")
@@ -282,9 +309,13 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
             if stream:
                 streams[inc].pop(stream, None)
 
+    # Ensure object-table incarnations appear even if silent (SI-only residual).
     for obj in objects:
         inc = _inc_id(int(obj["slot"]), int(obj["gen"]))
         ensure(inc)
+        # Streams/names already journal-driven. Do not inherit from objects when
+        # journal evidence exists for the incarnation. If incarnation has no
+        # journal events, adopt object end-state names/streams that are not poisoned.
         has_journal = any(
             e["slot"] == int(obj["slot"]) and e["gen"] == int(obj["gen"]) for e in timeline
         )
@@ -321,3 +352,10 @@ def dumps_timeline(timeline: list[dict[str, Any]]) -> str:
 
 def dumps_ownership(ownership: dict[str, Any]) -> str:
     return json.dumps(ownership, ensure_ascii=False, indent=2) + "\n"
+
+
+def write_case_outputs(case_dir: Path, out_dir: Path) -> None:
+    timeline, ownership = reconstruct_case(case_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "timeline.json").write_text(dumps_timeline(timeline), encoding="utf-8")
+    (out_dir / "ownership.json").write_text(dumps_ownership(ownership), encoding="utf-8")

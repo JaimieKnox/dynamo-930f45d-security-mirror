@@ -1,0 +1,10 @@
+{"op_seq": 65530, "slot": 50, "gen": 1, "kind": "CREATE", "wall": 100, "name": "echo/stage.txt", "stream": "$DATA", "content": "echo_g1"}
+{"op_seq": 65531, "slot": 50, "gen": 1, "kind": "CREATE_STREAM", "wall": 110, "name": "echo/stage.txt", "stream": "meta", "content": "echo_meta"}
+{"op_seq": 65532, "slot": 51, "gen": 1, "kind": "CREATE", "wall": 120, "name": "echo/shared.dat", "stream": "$DATA", "content": "echo_a"}
+{"op_seq": 65534, "slot": 50, "gen": 1, "kind": "RENAME_OLD", "wall": 140, "name": "echo/stage.txt", "stream": null, "content": null}
+{"op_seq": 0, "slot": 50, "gen": 1, "kind": "RENAME_NEW", "wall": 150, "name": "echo/staged.txt", "stream": null, "content": null}
+{"op_seq": 1, "slot": 52, "gen": 1, "kind": "CREATE", "wall": 160, "name": "echo/shared.dat", "stream": "$DATA", "content": "echo_b"}
+{"op_seq": 2, "slot": 50, "gen": 1, "kind": "DELETE", "wall": 200, "name": "echo/staged.txt", "stream": null, "content": null}
+{"op_seq": 3, "slot": 50, "gen": 2, "kind": "CREATE", "wall": 300, "name": "echo/live.bin", "stream": "$DATA", "content": "echo_g2"}
+{"op_seq": 4, "slot": 53, "gen": 1, "kind": "CREATE", "wall": 400, "name": "echo/shared.dat", "stream": "$DATA", "content": "echo_c"}
+{"op_seq": 5, "slot": 53, "gen": 1, "kind": "WRITE", "wall": 410, "name": "echo/shared.dat", "stream": "$DATA", "content": "echo_c2"}

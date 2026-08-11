@@ -1,6 +1,6 @@
 """Verifier for vault timeline reconstruction outputs.
 
-Residue contrasts are sealed in phase A (wrong_models / wrong sibling axes).
+Residue contrasts are sealed in phase A.
 """
 
 from __future__ import annotations
@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-CASES = ("bravo", "charlie", "delta")
+CASES = ("echo", "foxtrot")
 OUT_ROOT = Path("/app/output")
 SEAL_PATH = Path("/logs/verifier/sealed_expectations.json")
 EVENT_KEYS = [
@@ -54,7 +54,7 @@ def test_output_files_exist_for_every_work_case():
 
 
 def test_timeline_schema_and_byte_contract():
-    """Success criterion 2: timeline events match the documented schema, key order, and JSON text shape."""
+    """Success criterion 2: timeline events match the contract schema, key order, and JSON text shape."""
     seal = _load_seal()
     for case in CASES:
         raw = _read_text(OUT_ROOT / case / "timeline.json")
@@ -100,15 +100,13 @@ def test_timeline_event_identity_and_order():
         assert agent == exp_tl
         times = [(e["time"], e["op_seq"], e["event_id"]) for e in agent]
         assert times == sorted(times)
-    # Residue: raw op_seq sort without txnlog gap fill diverges on delta.
-    wrong_d_tl = seal["residue"]["delta_raw_op_seq_sort_timeline"]
-    exp_d_tl, _ = _expected(seal, "delta")
-    assert wrong_d_tl != exp_d_tl
-    assert any(e["op_seq"] == 65533 for e in exp_d_tl)
-    # Residue: slot-only merge diverges on bravo timeline identities.
-    wrong_tl = seal["residue"]["bravo_slot_only_merge_timeline"]
-    exp_tl, _ = _expected(seal, "bravo")
-    assert wrong_tl != exp_tl
+    wrong_raw = seal["residue"]["echo_raw_op_seq_sort_timeline"]
+    exp_echo_tl, _ = _expected(seal, "echo")
+    assert wrong_raw != exp_echo_tl
+    assert any(e["op_seq"] == 65533 for e in exp_echo_tl)
+    assert any(e["kind"] == "MOVE" for e in exp_echo_tl)
+    wrong_slot = seal["residue"]["echo_slot_only_merge_timeline"]
+    assert wrong_slot != exp_echo_tl
 
 
 def test_ownership_incarnations_streams_and_poison():
@@ -118,10 +116,13 @@ def test_ownership_incarnations_streams_and_poison():
         agent = json.loads(_read_text(OUT_ROOT / case / "ownership.json"))
         _, exp_own = _expected(seal, case)
         assert agent == exp_own
-    wrong_br = seal["residue"]["bravo_stream_inherit_ownership"]
-    _, exp_br = _expected(seal, "bravo")
-    assert wrong_br != exp_br
-    wrong_ch = seal["residue"]["charlie_no_poison_ownership"]
-    _, exp_ch = _expected(seal, "charlie")
-    assert wrong_ch != exp_ch
-    assert exp_ch["poisoned_paths"] == ["shared/collide.txt"]
+    _, exp_echo = _expected(seal, "echo")
+    assert exp_echo["poisoned_paths"] == ["echo/shared.dat"]
+    wrong_stream = seal["residue"]["echo_stream_inherit_ownership"]
+    assert wrong_stream != exp_echo
+    wrong_poison = seal["residue"]["echo_no_poison_ownership"]
+    assert wrong_poison != exp_echo
+    _, exp_fox = _expected(seal, "foxtrot")
+    ghost = next(i for i in exp_fox["incarnations"] if i["id"] == "62:1")
+    assert ghost["names"] == ["fox/ghost.txt"]
+    assert "aux" in ghost["streams"]

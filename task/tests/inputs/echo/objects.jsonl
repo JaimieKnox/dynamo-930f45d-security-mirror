@@ -1,0 +1,5 @@
+{"slot": 50, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 50, "gen": 2, "names": ["echo/live.bin"], "streams": {"$DATA": "echo_g2"}, "si_mtime": 900, "si_ctime": 900, "si_btime": 800}
+{"slot": 51, "gen": 1, "names": [], "streams": {"$DATA": "echo_a"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 52, "gen": 1, "names": [], "streams": {"$DATA": "echo_b"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 53, "gen": 1, "names": [], "streams": {"$DATA": "echo_c2"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}

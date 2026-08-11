@@ -1,1 +1,1 @@
-{"op_seq": 65533, "slot": 11, "gen": 1, "kind": "WRITE", "wall": 210, "name": "docs/notes.txt", "stream": "$DATA", "content": "h_notes", "txn_id": 1}
+{"op_seq": 104, "slot": 2, "gen": 1, "kind": "CREATE", "wall": 30, "name": "fit/side.txt", "stream": "$DATA", "content": "fit_side", "txn_id": 1}

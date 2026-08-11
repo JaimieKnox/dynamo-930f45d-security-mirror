@@ -14,7 +14,7 @@ from reference_engine import dumps_ownership, dumps_timeline, reconstruct_case
 TESTS = Path(__file__).resolve().parent
 TESTS_IN = TESTS / "inputs"
 SEAL_PATH = Path("/logs/verifier/sealed_expectations.json")
-CASES = ("bravo", "charlie", "delta")
+CASES = ("echo", "foxtrot")
 
 
 def wrong_slot_only_merge(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -143,18 +143,18 @@ def main() -> int:
             "ownership_text": dumps_ownership(own),
         }
 
-    wrong_d_tl, _ = wrong_raw_op_seq_sort(TESTS_IN / "delta")
-    wrong_tl, _ = wrong_slot_only_merge(TESTS_IN / "bravo")
-    _, wrong_br = wrong_stream_inherit(TESTS_IN / "bravo")
-    _, wrong_ch = wrong_no_poison(TESTS_IN / "charlie")
+    wrong_echo_raw, _ = wrong_raw_op_seq_sort(TESTS_IN / "echo")
+    wrong_echo_slot, _ = wrong_slot_only_merge(TESTS_IN / "echo")
+    _, wrong_echo_stream = wrong_stream_inherit(TESTS_IN / "echo")
+    _, wrong_echo_poison = wrong_no_poison(TESTS_IN / "echo")
 
     payload = {
         "cases": cases,
         "residue": {
-            "delta_raw_op_seq_sort_timeline": wrong_d_tl,
-            "bravo_slot_only_merge_timeline": wrong_tl,
-            "bravo_stream_inherit_ownership": wrong_br,
-            "charlie_no_poison_ownership": wrong_ch,
+            "echo_raw_op_seq_sort_timeline": wrong_echo_raw,
+            "echo_slot_only_merge_timeline": wrong_echo_slot,
+            "echo_stream_inherit_ownership": wrong_echo_stream,
+            "echo_no_poison_ownership": wrong_echo_poison,
         },
     }
     SEAL_PATH.write_text(

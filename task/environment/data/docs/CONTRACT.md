@@ -36,7 +36,8 @@ Ignoring txnlog when a wrap and a gap co-occur is wrong.
 ## Rename coalesce
 
 A `RENAME_OLD` immediately followed in chronological order by a `RENAME_NEW` on the same
-`(slot, gen)` coalesces into a single `MOVE` event. The MOVE uses the OLD name as `name_from`,
+`(slot, gen)` coalesces into a single `MOVE` event, including when that adjacent pair
+straddles the single oplog wrap seam. The MOVE uses the OLD name as `name_from`,
 the NEW name as `name_to`, and the journal `wall` from the NEW row. Emitting both rename
 fragments as separate timeline events is wrong.
 

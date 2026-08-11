@@ -1,4 +1,0 @@
-{"op_seq": 1, "slot": 30, "gen": 1, "kind": "CREATE", "wall": 100, "name": "shared/collide.txt", "stream": "$DATA", "content": "h_a"}
-{"op_seq": 2, "slot": 31, "gen": 1, "kind": "CREATE", "wall": 200, "name": "shared/collide.txt", "stream": "$DATA", "content": "h_b"}
-{"op_seq": 3, "slot": 32, "gen": 1, "kind": "CREATE", "wall": 300, "name": "shared/collide.txt", "stream": "$DATA", "content": "h_c"}
-{"op_seq": 4, "slot": 32, "gen": 1, "kind": "WRITE", "wall": 350, "name": "shared/collide.txt", "stream": "$DATA", "content": "h_c2"}
