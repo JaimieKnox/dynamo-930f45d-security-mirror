@@ -78,8 +78,8 @@ later claims must not revive the path into any incarnation's `names` (no revive)
 
 ## Fit pack
 
-`/app/data/fit/alpha/` includes ledgers and `expected/timeline.json` plus
-`expected/ownership.json`. Those expecteds are normative worked examples of this contract.
+`/app/data/fit/alpha/` includes ledgers and `/app/data/fit/alpha/expected/timeline.json` plus
+`/app/data/fit/alpha/expected/ownership.json`. Those expecteds are normative worked examples of this contract.
 Every graded branch below is uniquely determined by composing the rules with those examples.
 
 ## Work packs
@@ -121,3 +121,4 @@ order exactly as listed above for each event.
 Serialize with UTF-8, `ensure_ascii` false, 2-space indent, trailing newline. Top-level key
 order is `incarnations` then `poisoned_paths`. Incarnation object key order is
 `id`, `slot`, `gen`, `names`, `streams`.
+

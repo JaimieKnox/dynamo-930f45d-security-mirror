@@ -23,3 +23,6 @@ node_modules/
 dist.tar.gz
 sealed_expectations.json
 **/sealed_expectations.json
+
+jobs/
+**/reward.txt
