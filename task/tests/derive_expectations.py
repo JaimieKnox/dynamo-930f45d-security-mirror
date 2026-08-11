@@ -9,7 +9,13 @@ import os
 from pathlib import Path
 from typing import Any
 
-from reference_engine import dumps_ownership, dumps_timeline, reconstruct_case
+from reference_engine import (
+    build_corpus_index,
+    dumps_corpus_index,
+    dumps_ownership,
+    dumps_timeline,
+    reconstruct_case,
+)
 
 TESTS = Path(__file__).resolve().parent
 TESTS_IN = TESTS / "inputs"
@@ -165,10 +171,13 @@ def main() -> int:
             "echo_no_poison_ownership": wrong_echo_poison,
         }
 
+    corpus_index = build_corpus_index(TESTS_IN)
     payload = {
         "case_ids": list(cases_list),
         "cases": cases,
         "residue": residue,
+        "corpus_index": corpus_index,
+        "corpus_index_text": dumps_corpus_index(corpus_index),
     }
     SEAL_PATH.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2) + "\n",

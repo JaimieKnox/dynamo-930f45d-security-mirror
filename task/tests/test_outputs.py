@@ -145,3 +145,23 @@ def test_ownership_incarnations_streams_and_poison():
         ghost = next(i for i in exp_fox["incarnations"] if i["id"] == "62:1")
         assert ghost["names"] == ["fox/ghost.txt"]
         assert "aux" in ghost["streams"]
+
+
+def test_corpus_index_schema_and_byte_contract():
+    """Success criterion 6: corpus_index.json matches schema and sealed aggregates."""
+    seal = _load_seal()
+    raw = _read_text(OUT_ROOT / "corpus_index.json")
+    data = json.loads(raw)
+    assert list(data.keys()) == [
+        "case_ids",
+        "poisoned_paths",
+        "incarnation_count",
+        "move_event_count",
+    ]
+    assert data["case_ids"] == list(_case_ids(seal))
+    assert data["poisoned_paths"] == sorted(data["poisoned_paths"])
+    assert type(data["incarnation_count"]) is int
+    assert type(data["move_event_count"]) is int
+    assert raw == seal["corpus_index_text"]
+    assert data == seal["corpus_index"]
+

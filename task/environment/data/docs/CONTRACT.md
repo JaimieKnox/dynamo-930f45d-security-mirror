@@ -81,14 +81,21 @@ later claims must not revive the path into any incarnation's `names` (no revive)
 
 ## Fit pack
 
-`/app/data/fit/alpha/` includes ledgers and `/app/data/fit/alpha/expected/timeline.json` plus
-`/app/data/fit/alpha/expected/ownership.json`. Those expecteds are normative worked examples of this contract.
-Every graded branch below is uniquely determined by composing the rules with those examples.
+`/app/data/fit/alpha/` includes ledgers and `/app/data/fit/alpha/smoke_digests.json`.
+Those smoke digests are sha256 hashes of the JSON text produced by the shipped partial helper
+`/app/engine/starter.py` on the fit ledgers. They are a non-normative smoke check for that
+helper only. They are not graded normative expected timeline or ownership documents for work
+cases. Graded behavior is uniquely determined by composing the rules in this contract.
+
+The starter helper is intentionally incomplete relative to this contract. Passing fit smoke
+does not imply a correct work-case reconstruction.
 
 ## Work packs
 
 Process every case directory under `/app/data/work/`. Write outputs under
 `/app/output/<case_id>/` where `<case_id>` is the directory name.
+
+Also write `/app/output/corpus_index.json` aggregating every work case (see Output schemas).
 
 ## Output schemas
 
@@ -125,3 +132,12 @@ Serialize with UTF-8, `ensure_ascii` false, 2-space indent, trailing newline. To
 order is `incarnations` then `poisoned_paths`. Incarnation object key order is
 `id`, `slot`, `gen`, `names`, `streams`.
 
+`corpus_index.json` is a JSON object aggregating every work case under `/app/data/work/`:
+
+- `case_ids` (array of strings, sorted ascending): work case directory names
+- `poisoned_paths` (array of strings, sorted ascending): union of `poisoned_paths` across cases
+- `incarnation_count` (integer): sum of incarnation array lengths across cases
+- `move_event_count` (integer): sum of timeline events with `kind` equal to `MOVE` across cases
+
+Serialize with UTF-8, `ensure_ascii` false, 2-space indent, trailing newline. Top-level key
+order is `case_ids`, `poisoned_paths`, `incarnation_count`, `move_event_count`.

@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, "/solution")
-from recon import write_case_outputs  # noqa: E402
+from recon import write_case_outputs, write_corpus_index  # noqa: E402
 
 WORK = Path("/app/data/work")
 OUT = Path("/app/output")
@@ -18,6 +18,7 @@ def main() -> None:
         raise SystemExit("missing /app/data/work")
     for case_dir in sorted(p for p in WORK.iterdir() if p.is_dir()):
         write_case_outputs(case_dir, OUT / case_dir.name)
+    write_corpus_index(WORK, OUT / "corpus_index.json")
 
 
 if __name__ == "__main__":

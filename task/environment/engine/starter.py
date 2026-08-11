@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""Deterministic vault timeline reconstruction (oracle)."""
+"""Partial vault reconstruction helper shipped for fit smoke only.
+
+This helper is intentionally incomplete. It is calibrated so fit/alpha smoke digests
+pass while several CONTRACT rules remain wrong on held work packs.
+"""
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -34,7 +39,7 @@ def _event_id(slot: int, gen: int, op_seq: int, kind: str) -> str:
 def _chronological_ops(
     oplog: list[dict[str, Any]], txnlog: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
-    """Order oplog by unique oldest-first circular rotation and insert txnlog-only ops."""
+    """Oldest-first circular rotation. Silent wrong: drop ALL txnlog if any seq overlaps oplog."""
     if not oplog and not txnlog:
         return []
 
@@ -42,19 +47,24 @@ def _chronological_ops(
     for row in oplog:
         by_seq[int(row["op_seq"])] = dict(row)
 
+    oplog_seqs = set(by_seq.keys())
+    any_overlap = any(int(r["op_seq"]) in oplog_seqs for r in txnlog)
+    # Silent wrong: if any txn seq duplicates oplog, ignore the entire txnlog.
     txn_only: list[dict[str, Any]] = []
-    for row in txnlog:
-        seq = int(row["op_seq"])
-        if seq not in by_seq:
-            txn_only.append(dict(row))
+    if not any_overlap:
+        for row in txnlog:
+            seq = int(row["op_seq"])
+            if seq not in by_seq:
+                txn_only.append(dict(row))
 
     if not by_seq and txn_only:
         return sorted(
             txn_only,
             key=lambda r: (int(r["wall"]), int(r["op_seq"]), int(r["slot"]), int(r["gen"])),
         )
+    if not by_seq:
+        return []
 
-    # Oldest oplog event (by wall, then op_seq, slot, gen) starts the rotation.
     oldest = min(
         by_seq.values(),
         key=lambda r: (int(r["wall"]), int(r["op_seq"]), int(r["slot"]), int(r["gen"])),
@@ -66,14 +76,10 @@ def _chronological_ops(
     if not txn_only:
         return ordered
 
-    def seq_rank(seq: int) -> tuple[int, int, int, int]:
-        # Position along the oldest-first rotation, then stable tie-breaks.
-        return ((seq - start) % OP_SEQ_MOD, seq, 0, 0)
-
     inserts = sorted(
         txn_only,
         key=lambda r: (
-            seq_rank(int(r["op_seq"]))[0],
+            (int(r["op_seq"]) - start) % OP_SEQ_MOD,
             int(r["wall"]),
             int(r["op_seq"]),
             int(r["slot"]),
@@ -82,11 +88,9 @@ def _chronological_ops(
     )
     merged: list[dict[str, Any]] = []
     pending = list(inserts)
-    for i, row in enumerate(ordered):
+    for row in ordered:
         row_lin = (int(row["op_seq"]) - start) % OP_SEQ_MOD
         while pending and ((int(pending[0]["op_seq"]) - start) % OP_SEQ_MOD) <= row_lin:
-            # Insert strictly before equal linear rank only when wall is earlier;
-            # for equal lin rank prefer wall then keep oplog row.
             p = pending[0]
             p_lin = (int(p["op_seq"]) - start) % OP_SEQ_MOD
             if p_lin < row_lin or (
@@ -102,6 +106,7 @@ def _chronological_ops(
 
 
 def _coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Silent wrong: coalesce MOVE only when op_seq differs by exactly 1 mod 65536."""
     out: list[dict[str, Any]] = []
     i = 0
     while i < len(ops):
@@ -112,6 +117,7 @@ def _coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:
             and ops[i + 1].get("kind") == "RENAME_NEW"
             and int(ops[i + 1]["slot"]) == int(row["slot"])
             and int(ops[i + 1]["gen"]) == int(row["gen"])
+            and (int(ops[i + 1]["op_seq"]) - int(row["op_seq"])) % OP_SEQ_MOD == 1
         ):
             new = ops[i + 1]
             out.append(
@@ -177,11 +183,10 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
 
     timeline.sort(key=lambda e: (e["time"], e["op_seq"], e["event_id"]))
 
-    # Ownership + poison from journalled claims.
     names: dict[str, set[str]] = {}
     streams: dict[str, dict[str, str]] = {}
-    active_path_owner: dict[str, str] = {}
-    poisoned: set[str] = set()
+    # Silent wrong: last-writer path map (no poison).
+    path_owner: dict[str, str] = {}
 
     def ensure(inc: str) -> None:
         names.setdefault(inc, set())
@@ -195,31 +200,18 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
         def claim(path: str | None) -> None:
             if not path:
                 return
-            if path in poisoned:
-                return
-            prev = active_path_owner.get(path)
-            if prev is None:
-                active_path_owner[path] = inc
-                names[inc].add(path)
-                return
-            if prev == inc:
-                names[inc].add(path)
-                return
-            # Conflict without clean transfer.
-            poisoned.add(path)
-            names[prev].discard(path)
-            names[inc].discard(path)
-            active_path_owner.pop(path, None)
-            # No revive: path stays poisoned.
+            prev = path_owner.get(path)
+            if prev is not None and prev != inc:
+                names[prev].discard(path)
+            path_owner[path] = inc
+            names[inc].add(path)
 
         def release(path: str | None) -> None:
             if not path:
                 return
-            if path in poisoned:
-                return
             names[inc].discard(path)
-            if active_path_owner.get(path) == inc:
-                active_path_owner.pop(path, None)
+            if path_owner.get(path) == inc:
+                path_owner.pop(path, None)
 
         if kind == "CREATE":
             claim(ev.get("name"))
@@ -231,15 +223,13 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
             claim(ev.get("name"))
         elif kind == "MOVE":
             release(ev.get("name_from"))
-            # Clean transfer: release then claim on same or different incarnation.
-            # MOVE is same incarnation path change; for cross-incarnation, modeled as
-            # DELETE+CREATE. Same-incarnation MOVE updates names.
             claim(ev.get("name_to"))
         elif kind == "RENAME_NEW":
             claim(ev.get("name"))
+        elif kind == "RENAME_OLD":
+            release(ev.get("name"))
         elif kind == "DELETE":
             release(ev.get("name"))
-            # Deleting primary name does not clear streams unless DELETE_STREAM.
         elif kind == "WRITE":
             stream = ev.get("stream") or "$DATA"
             content = ev.get("content")
@@ -255,22 +245,25 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
             if stream:
                 streams[inc].pop(stream, None)
 
-    # Ensure object-table incarnations appear even if silent (SI-only residual).
+    # Silent wrong: inherit streams across gens in the same slot.
+    by_slot: dict[int, list[str]] = {}
+    for inc in list(streams.keys()):
+        slot = int(inc.split(":")[0])
+        by_slot.setdefault(slot, []).append(inc)
+    for slot, incs in by_slot.items():
+        incs_sorted = sorted(incs, key=lambda x: int(x.split(":")[1]))
+        carried: dict[str, str] = {}
+        for inc in incs_sorted:
+            carried.update(streams.get(inc, {}))
+            streams[inc] = dict(carried)
+
+    # Silent wrong: skip SI-only zero-journal residuals from the object table.
+    journalled = {_inc_id(e["slot"], e["gen"]) for e in timeline}
     for obj in objects:
         inc = _inc_id(int(obj["slot"]), int(obj["gen"]))
+        if inc not in journalled:
+            continue
         ensure(inc)
-        # Streams/names already journal-driven. Do not inherit from objects when
-        # journal evidence exists for the incarnation. If incarnation has no
-        # journal events, adopt object end-state names/streams that are not poisoned.
-        has_journal = any(
-            e["slot"] == int(obj["slot"]) and e["gen"] == int(obj["gen"]) for e in timeline
-        )
-        if not has_journal:
-            for n in obj.get("names") or []:
-                if n not in poisoned:
-                    names[inc].add(n)
-            for sname, digest in (obj.get("streams") or {}).items():
-                streams[inc][sname] = digest
 
     incarnations = []
     for inc in sorted(names.keys(), key=lambda x: (int(x.split(":")[0]), int(x.split(":")[1]))):
@@ -281,13 +274,13 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
                 "slot": int(slot_s),
                 "gen": int(gen_s),
                 "names": sorted(names[inc]),
-                "streams": {k: streams[inc][k] for k in sorted(streams[inc].keys())},
+                "streams": {k: streams[inc][k] for k in sorted(streams.get(inc, {}).keys())},
             }
         )
 
     ownership = {
         "incarnations": incarnations,
-        "poisoned_paths": sorted(poisoned),
+        "poisoned_paths": [],
     }
     return timeline, ownership
 
@@ -300,37 +293,19 @@ def dumps_ownership(ownership: dict[str, Any]) -> str:
     return json.dumps(ownership, ensure_ascii=False, indent=2) + "\n"
 
 
+def fit_smoke(fit_dir: Path) -> dict[str, str]:
+    """Return sha256 digests of starter timeline/ownership JSON text for a fit pack."""
+    timeline, ownership = reconstruct_case(fit_dir)
+    tl_text = dumps_timeline(timeline)
+    own_text = dumps_ownership(ownership)
+    return {
+        "timeline_sha256": hashlib.sha256(tl_text.encode("utf-8")).hexdigest(),
+        "ownership_sha256": hashlib.sha256(own_text.encode("utf-8")).hexdigest(),
+    }
+
+
 def write_case_outputs(case_dir: Path, out_dir: Path) -> None:
     timeline, ownership = reconstruct_case(case_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "timeline.json").write_text(dumps_timeline(timeline), encoding="utf-8")
     (out_dir / "ownership.json").write_text(dumps_ownership(ownership), encoding="utf-8")
-
-
-def build_corpus_index(work_root: Path) -> dict[str, Any]:
-    """Aggregate corpus stats across every case directory under work_root."""
-    case_ids = sorted(p.name for p in work_root.iterdir() if p.is_dir())
-    poisoned: set[str] = set()
-    incarnation_count = 0
-    move_event_count = 0
-    for cid in case_ids:
-        timeline, ownership = reconstruct_case(work_root / cid)
-        poisoned.update(ownership.get("poisoned_paths") or [])
-        incarnation_count += len(ownership.get("incarnations") or [])
-        move_event_count += sum(1 for ev in timeline if ev.get("kind") == "MOVE")
-    return {
-        "case_ids": case_ids,
-        "poisoned_paths": sorted(poisoned),
-        "incarnation_count": incarnation_count,
-        "move_event_count": move_event_count,
-    }
-
-
-def dumps_corpus_index(index: dict[str, Any]) -> str:
-    return json.dumps(index, ensure_ascii=False, indent=2) + "\n"
-
-
-def write_corpus_index(work_root: Path, out_path: Path) -> None:
-    index = build_corpus_index(work_root)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(dumps_corpus_index(index), encoding="utf-8")

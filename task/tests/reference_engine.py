@@ -305,3 +305,32 @@ def write_case_outputs(case_dir: Path, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "timeline.json").write_text(dumps_timeline(timeline), encoding="utf-8")
     (out_dir / "ownership.json").write_text(dumps_ownership(ownership), encoding="utf-8")
+
+
+def build_corpus_index(work_root: Path) -> dict[str, Any]:
+    """Aggregate corpus stats across every case directory under work_root."""
+    case_ids = sorted(p.name for p in work_root.iterdir() if p.is_dir())
+    poisoned: set[str] = set()
+    incarnation_count = 0
+    move_event_count = 0
+    for cid in case_ids:
+        timeline, ownership = reconstruct_case(work_root / cid)
+        poisoned.update(ownership.get("poisoned_paths") or [])
+        incarnation_count += len(ownership.get("incarnations") or [])
+        move_event_count += sum(1 for ev in timeline if ev.get("kind") == "MOVE")
+    return {
+        "case_ids": case_ids,
+        "poisoned_paths": sorted(poisoned),
+        "incarnation_count": incarnation_count,
+        "move_event_count": move_event_count,
+    }
+
+
+def dumps_corpus_index(index: dict[str, Any]) -> str:
+    return json.dumps(index, ensure_ascii=False, indent=2) + "\n"
+
+
+def write_corpus_index(work_root: Path, out_path: Path) -> None:
+    index = build_corpus_index(work_root)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(dumps_corpus_index(index), encoding="utf-8")
