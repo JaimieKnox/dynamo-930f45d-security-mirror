@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -73,7 +74,6 @@ def wrong_slot_only_merge(case_dir: Path) -> tuple[list[dict[str, Any]], dict[st
 
 def wrong_raw_op_seq_sort(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Sort oplog by raw op_seq integers (breaks wrap)."""
-    import json
 
     def load(p: Path):
         rows = []
@@ -184,17 +184,16 @@ def wrong_no_half_pair_coalesce(case_dir: Path) -> tuple[list[dict[str, Any]], d
 
 
 def wrong_move_uses_new_wall(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Rival: coalesced MOVE time taken from RENAME_NEW wall instead of legacy OLD wall.
+    """Rival: coalesced MOVE time taken from RENAME_NEW wall instead of OLD wall.
 
     Re-sorting and recomputing chain hashes cascades failures after the first wrong MOVE.
     """
-    import json as _json
 
     def load(p: Path):
         rows = []
         for line in p.read_text(encoding="utf-8").splitlines():
             if line.strip():
-                rows.append(_json.loads(line))
+                rows.append(json.loads(line))
         return rows
 
     timeline, ownership = reconstruct_case(case_dir)
@@ -262,10 +261,8 @@ def wrong_si_adopts_poisoned(case_dir: Path) -> tuple[list[dict[str, Any]], dict
     return timeline, own
 
 
-def wrong_chain_genesis(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Rival: chain genesis token differs from the exporter profile."""
-    import hashlib
-
+def wrong_chain_omit_op_seq(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Rival: chain hash omits op_seq from the cascading preimage."""
     timeline, ownership = reconstruct_case(case_dir)
     tl = copy.deepcopy(timeline)
     prev: str | None = None
@@ -273,7 +270,7 @@ def wrong_chain_genesis(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str,
         eid = str(ev["event_id"])
         t = int(ev["time"])
         if prev is None:
-            raw = f"VAULT0|{eid}|{t}"
+            raw = f"VT|{eid}|{t}"
         else:
             raw = f"{prev}|{eid}|{t}"
         digest = hashlib.sha256(raw.encode()).hexdigest()[:16]
@@ -313,13 +310,13 @@ def main() -> int:
         wrong_golf_half, _ = wrong_no_half_pair_coalesce(TESTS_IN / "golf")
         _, wrong_golf_si = wrong_si_adopts_poisoned(TESTS_IN / "golf")
         wrong_golf_move_wall, _ = wrong_move_uses_new_wall(TESTS_IN / "golf")
-        wrong_golf_genesis, _ = wrong_chain_genesis(TESTS_IN / "golf")
+        wrong_golf_omit, _ = wrong_chain_omit_op_seq(TESTS_IN / "golf")
         residue.update(
             {
                 "golf_wrong_no_half_pair_coalesce_timeline": wrong_golf_half,
                 "golf_wrong_si_adopts_poisoned_ownership": wrong_golf_si,
                 "golf_wrong_move_uses_new_wall_timeline": wrong_golf_move_wall,
-                "golf_wrong_chain_genesis_timeline": wrong_golf_genesis,
+                "golf_wrong_chain_omit_op_seq_timeline": wrong_golf_omit,
             }
         )
     if "echo" in cases_list and "echo_wrong_move_uses_new_wall_timeline" not in residue:
@@ -327,13 +324,26 @@ def main() -> int:
         residue["echo_wrong_move_uses_new_wall_timeline"] = wrong_echo_move_wall
     if "juliet" in cases_list:
         wrong_juliet_move_wall, _ = wrong_move_uses_new_wall(TESTS_IN / "juliet")
-        wrong_juliet_genesis, _ = wrong_chain_genesis(TESTS_IN / "juliet")
+        wrong_juliet_omit, _ = wrong_chain_omit_op_seq(TESTS_IN / "juliet")
         _, wrong_juliet_si = wrong_si_adopts_poisoned(TESTS_IN / "juliet")
         residue.update(
             {
                 "juliet_wrong_move_uses_new_wall_timeline": wrong_juliet_move_wall,
-                "juliet_wrong_chain_genesis_timeline": wrong_juliet_genesis,
+                "juliet_wrong_chain_omit_op_seq_timeline": wrong_juliet_omit,
                 "juliet_wrong_si_adopts_poisoned_ownership": wrong_juliet_si,
+            }
+        )
+    if "kilo" in cases_list:
+        wrong_kilo_half, _ = wrong_no_half_pair_coalesce(TESTS_IN / "kilo")
+        _, wrong_kilo_si = wrong_si_adopts_poisoned(TESTS_IN / "kilo")
+        wrong_kilo_move_wall, _ = wrong_move_uses_new_wall(TESTS_IN / "kilo")
+        wrong_kilo_omit, _ = wrong_chain_omit_op_seq(TESTS_IN / "kilo")
+        residue.update(
+            {
+                "kilo_wrong_no_half_pair_coalesce_timeline": wrong_kilo_half,
+                "kilo_wrong_si_adopts_poisoned_ownership": wrong_kilo_si,
+                "kilo_wrong_move_uses_new_wall_timeline": wrong_kilo_move_wall,
+                "kilo_wrong_chain_omit_op_seq_timeline": wrong_kilo_omit,
             }
         )
 

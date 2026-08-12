@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 from pathlib import Path
@@ -26,47 +25,6 @@ EVENT_KEYS = [
     "content",
     "chain",
 ]
-
-_DEFAULT_PROFILE: dict[str, Any] = {
-    "move_time_half": "rename_src",
-    "move_op_seq_half": "rename_dst",
-    "timeline_order": ["time", "event_id"],
-    "chain": {
-        "genesis_token": "VAULT1",
-        "hex_prefix_len": 16,
-        "first_template": "{genesis}|{event_id}|{time}",
-        "next_template": "{prev}|{event_id}|{time}",
-        "hash": "sha256",
-    },
-}
-
-_profile_cache: dict[str, Any] | None = None
-
-
-def load_exporter_profile() -> dict[str, Any]:
-    """Load exporter profile from the case-independent docs path."""
-    global _profile_cache
-    if _profile_cache is not None:
-        return _profile_cache
-    here = Path(__file__).resolve().parent
-    candidates = [
-        Path("/app/data/docs/exporter_profile.json"),
-        here.parent / "environment" / "data" / "docs" / "exporter_profile.json",
-    ]
-    for path in candidates:
-        if path.is_file():
-            _profile_cache = json.loads(path.read_text(encoding="utf-8"))
-            return _profile_cache
-    _profile_cache = copy.deepcopy(_DEFAULT_PROFILE)
-    return _profile_cache
-
-
-def _half_row(old: dict[str, Any], new: dict[str, Any], token: str) -> dict[str, Any]:
-    if token == "rename_src":
-        return old
-    if token == "rename_dst":
-        return new
-    raise ValueError(f"unknown exporter half token: {token}")
 
 
 def _load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -91,31 +49,23 @@ def _event_id(slot: int, gen: int, op_seq: int, kind: str) -> str:
 
 def annotate_chains(timeline: list[dict[str, Any]]) -> None:
     """Set trailing `chain` on each event in sorted timeline order (mutates in place)."""
-    profile = load_exporter_profile()
-    chain_cfg = profile["chain"]
-    genesis = str(chain_cfg["genesis_token"])
-    prefix_len = int(chain_cfg["hex_prefix_len"])
-    first_template = str(chain_cfg["first_template"])
-    next_template = str(chain_cfg["next_template"])
-    if chain_cfg.get("hash") != "sha256":
-        raise ValueError(f"unsupported chain hash: {chain_cfg.get('hash')}")
     prev: str | None = None
     for ev in timeline:
         eid = str(ev["event_id"])
         t = int(ev["time"])
+        op_seq = int(ev["op_seq"])
         if prev is None:
-            raw = first_template.format(genesis=genesis, event_id=eid, time=t, prev="")
+            raw = f"VT|{eid}|{t}|{op_seq}"
         else:
-            raw = next_template.format(genesis=genesis, event_id=eid, time=t, prev=prev)
-        digest = hashlib.sha256(raw.encode()).hexdigest()[:prefix_len]
+            raw = f"{prev}|{eid}|{t}|{op_seq}"
+        digest = hashlib.sha256(raw.encode()).hexdigest()[:16]
         ev.pop("chain", None)
         ev["chain"] = digest
         prev = digest
 
 
 def _timeline_sort_key(ev: dict[str, Any]) -> tuple[Any, ...]:
-    order = load_exporter_profile().get("timeline_order") or ["time", "event_id"]
-    return tuple(ev[k] for k in order)
+    return (ev["time"], ev["event_id"])
 
 
 def _chronological_ops(
@@ -190,9 +140,6 @@ def _chronological_ops(
 
 def _coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Coalesce adjacent RENAME_OLD+RENAME_NEW after full merge, any ledger origin."""
-    profile = load_exporter_profile()
-    time_half = str(profile["move_time_half"])
-    seq_half = str(profile["move_op_seq_half"])
     out: list[dict[str, Any]] = []
     i = 0
     while i < len(ops):
@@ -205,15 +152,14 @@ def _coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:
             and int(ops[i + 1]["gen"]) == int(row["gen"])
         ):
             new = ops[i + 1]
-            time_row = _half_row(row, new, time_half)
-            seq_row = _half_row(row, new, seq_half)
+            # MOVE time from RENAME_OLD wall; op_seq / event_id from RENAME_NEW.
             out.append(
                 {
                     "kind": "MOVE",
                     "slot": int(row["slot"]),
                     "gen": int(row["gen"]),
-                    "op_seq": int(seq_row["op_seq"]),
-                    "wall": int(time_row["wall"]),
+                    "op_seq": int(new["op_seq"]),
+                    "wall": int(row["wall"]),
                     "name_from": row.get("name"),
                     "name_to": new.get("name"),
                     "stream": None,

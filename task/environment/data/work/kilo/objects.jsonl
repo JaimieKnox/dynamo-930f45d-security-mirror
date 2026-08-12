@@ -1,0 +1,18 @@
+{"slot": 120, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 120, "gen": 2, "names": ["kilo/root2.txt"], "streams": {"$DATA": "kilo_r2c", "fresh": "kilo_fresh"}, "si_mtime": 2910, "si_ctime": 2910, "si_btime": 1900}
+{"slot": 121, "gen": 1, "names": [], "streams": {"$DATA": "kilo_a2", "mark": "kilo_mark"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 122, "gen": 1, "names": ["kilo/carrier_v2.txt", "kilo/carrier_link.txt"], "streams": {"$DATA": "kilo_car4", "note": "kilo_note"}, "si_mtime": 2900, "si_ctime": 2900, "si_btime": 1400}
+{"slot": 123, "gen": 1, "names": ["kilo/other.txt"], "streams": {"$DATA": "kilo_o2"}, "si_mtime": 2520, "si_ctime": 2520, "si_btime": 1700}
+{"slot": 124, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 124, "gen": 2, "names": ["kilo/pad2.txt"], "streams": {"$DATA": "kilo_p2d"}, "si_mtime": 2810, "si_ctime": 2810, "si_btime": 2110}
+{"slot": 125, "gen": 1, "names": ["kilo/noise1.txt"], "streams": {"$DATA": "kilo_n1e"}, "si_mtime": 2510, "si_ctime": 2510, "si_btime": 1200}
+{"slot": 126, "gen": 1, "names": ["kilo/orphan.txt"], "streams": {"$DATA": "kilo_late"}, "si_mtime": 2010, "si_ctime": 2010, "si_btime": 2000}
+{"slot": 127, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 128, "gen": 1, "names": ["kilo/clean_a.txt"], "streams": {"$DATA": "kilo_cb2"}, "si_mtime": 2330, "si_ctime": 2330, "si_btime": 2320}
+{"slot": 129, "gen": 1, "names": ["kilo/ghost.txt", "kilo/shared.dat"], "streams": {"$DATA": "kilo_ghost", "side": "kilo_side"}, "si_mtime": 50, "si_ctime": 50, "si_btime": 40}
+{"slot": 130, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 131, "gen": 1, "names": ["kilo/trail.txt", "kilo/trail_link.txt"], "streams": {"$DATA": "kilo_trail4", "side": "kilo_trail_side"}, "si_mtime": 3240, "si_ctime": 3240, "si_btime": 2600}
+{"slot": 132, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 133, "gen": 1, "names": ["kilo/cycle.txt"], "streams": {"$DATA": "kilo_cy3"}, "si_mtime": 2730, "si_ctime": 2730, "si_btime": 2720}
+{"slot": 134, "gen": 1, "names": ["kilo/extra.txt", "kilo/extra_link.txt"], "streams": {"$DATA": "kilo_ex3"}, "si_mtime": 3120, "si_ctime": 3120, "si_btime": 3000}
+{"slot": 135, "gen": 1, "names": ["kilo/tail.txt"], "streams": {"$DATA": "kilo_tail3", "aux": "kilo_tail_aux"}, "si_mtime": 3230, "si_ctime": 3230, "si_btime": 3200}

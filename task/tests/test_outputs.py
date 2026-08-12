@@ -191,12 +191,12 @@ def test_ownership_incarnations_streams_and_poison():
             exp_golf_tl[i]["chain"] != wrong_move_wall[i]["chain"]
             for i in range(min(len(exp_golf_tl), len(wrong_move_wall)))
         ), "NEW-wall MOVE rival must break chain integrity"
-        wrong_genesis = seal["residue"]["golf_wrong_chain_genesis_timeline"]
-        assert wrong_genesis != exp_golf_tl
+        wrong_omit = seal["residue"]["golf_wrong_chain_omit_op_seq_timeline"]
+        assert wrong_omit != exp_golf_tl
         assert any(
-            exp_golf_tl[i]["chain"] != wrong_genesis[i]["chain"]
-            for i in range(min(len(exp_golf_tl), len(wrong_genesis)))
-        ), "wrong chain genesis rival must diverge"
+            exp_golf_tl[i]["chain"] != wrong_omit[i]["chain"]
+            for i in range(min(len(exp_golf_tl), len(wrong_omit)))
+        ), "omit-op_seq chain rival must diverge"
 
     if "hotel" in case_ids:
         exp_hotel_tl, exp_hotel_own = _expected(seal, "hotel")
@@ -248,10 +248,54 @@ def test_ownership_incarnations_streams_and_poison():
             if e["kind"] == "MOVE" and e.get("name_from") == "juliet/carrier.txt"
         )
         assert wrong_move["time"] != juliet_move["time"]
-        wrong_genesis = seal["residue"]["juliet_wrong_chain_genesis_timeline"]
-        assert wrong_genesis != exp_juliet_tl
+        wrong_omit = seal["residue"]["juliet_wrong_chain_omit_op_seq_timeline"]
+        assert wrong_omit != exp_juliet_tl
         wrong_si = seal["residue"]["juliet_wrong_si_adopts_poisoned_ownership"]
         assert wrong_si != exp_juliet_own
+
+    if "kilo" in case_ids:
+        exp_kilo_tl, exp_kilo_own = _expected(seal, "kilo")
+        kilo_move = next(
+            e
+            for e in exp_kilo_tl
+            if e["kind"] == "MOVE"
+            and e["slot"] == 122
+            and e["gen"] == 1
+            and e.get("name_from") == "kilo/carrier.txt"
+            and e.get("name_to") == "kilo/carrier_v2.txt"
+        )
+        assert kilo_move["time"] == 1610
+        assert kilo_move["op_seq"] == 65526
+        assert "kilo/shared.dat" in exp_kilo_own["poisoned_paths"]
+        ghost = next(i for i in exp_kilo_own["incarnations"] if i["id"] == "129:1")
+        assert "kilo/shared.dat" not in ghost["names"]
+        assert "kilo/ghost.txt" in ghost["names"]
+        root2 = next(i for i in exp_kilo_own["incarnations"] if i["id"] == "120:2")
+        assert "meta" not in root2["streams"]
+        assert any(e["kind"] == "RENAME_NEW" for e in exp_kilo_tl)
+        assert len(exp_kilo_tl) >= 45
+        wrong_half = seal["residue"]["kilo_wrong_no_half_pair_coalesce_timeline"]
+        assert wrong_half != exp_kilo_tl
+        wrong_si = seal["residue"]["kilo_wrong_si_adopts_poisoned_ownership"]
+        assert wrong_si != exp_kilo_own
+        wrong_move_wall = seal["residue"]["kilo_wrong_move_uses_new_wall_timeline"]
+        assert wrong_move_wall != exp_kilo_tl
+        wrong_move = next(
+            e
+            for e in wrong_move_wall
+            if e["kind"] == "MOVE" and e.get("name_from") == "kilo/carrier.txt"
+        )
+        assert wrong_move["time"] != kilo_move["time"]
+        assert any(
+            exp_kilo_tl[i]["chain"] != wrong_move_wall[i]["chain"]
+            for i in range(min(len(exp_kilo_tl), len(wrong_move_wall)))
+        ), "NEW-wall MOVE rival must break chain integrity on kilo"
+        wrong_omit = seal["residue"]["kilo_wrong_chain_omit_op_seq_timeline"]
+        assert wrong_omit != exp_kilo_tl
+        assert any(
+            exp_kilo_tl[i]["chain"] != wrong_omit[i]["chain"]
+            for i in range(min(len(exp_kilo_tl), len(wrong_omit)))
+        ), "omit-op_seq chain rival must diverge on kilo"
 
 
 def test_corpus_index_schema_and_byte_contract():
@@ -271,6 +315,7 @@ def test_corpus_index_schema_and_byte_contract():
     assert "golf" in data["case_ids"]
     assert "hotel" in data["case_ids"]
     assert "juliet" in data["case_ids"]
+    assert "kilo" in data["case_ids"]
     assert data["poisoned_paths"] == sorted(data["poisoned_paths"])
     assert type(data["incarnation_count"]) is int
     assert type(data["move_event_count"]) is int
@@ -283,5 +328,6 @@ def test_corpus_index_schema_and_byte_contract():
         assert tip == exp_tl[-1]["chain"]
     assert "hotel" in data["chain_tips"]
     assert "juliet" in data["chain_tips"]
+    assert "kilo" in data["chain_tips"]
     assert raw == seal["corpus_index_text"]
     assert data == seal["corpus_index"]
