@@ -6,7 +6,7 @@
       "gen": 1,
       "names": [],
       "streams": {
-        "$DATA": "fit_w"
+        "$DATA": "alpha_w"
       }
     },
     {
@@ -14,10 +14,10 @@
       "slot": 1,
       "gen": 2,
       "names": [
-        "fit/only_v2.txt"
+        "alpha/only_v2.txt"
       ],
       "streams": {
-        "$DATA": "fit_v2"
+        "$DATA": "alpha_v2"
       }
     },
     {
@@ -25,11 +25,11 @@
       "slot": 2,
       "gen": 1,
       "names": [
-        "fit/side.txt"
+        "alpha/side.txt"
       ],
       "streams": {
-        "$DATA": "fit_side2",
-        "tag": "fit_tag"
+        "$DATA": "alpha_side2",
+        "tag": "alpha_tag"
       }
     },
     {
@@ -37,10 +37,10 @@
       "slot": 3,
       "gen": 1,
       "names": [
-        "fit/half_moved.txt"
+        "alpha/half_moved.txt"
       ],
       "streams": {
-        "$DATA": "fit_half"
+        "$DATA": "alpha_half"
       }
     },
     {
@@ -48,11 +48,11 @@
       "slot": 4,
       "gen": 1,
       "names": [
-        "fit/ghost.txt"
+        "alpha/ghost.txt"
       ],
       "streams": {
-        "$DATA": "fit_ghost",
-        "aux": "fit_aux"
+        "$DATA": "alpha_ghost",
+        "aux": "alpha_aux"
       }
     }
   ],

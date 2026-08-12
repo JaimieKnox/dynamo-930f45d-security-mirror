@@ -1,5 +1,5 @@
 {"slot": 1, "gen": 1, "names": [], "streams": {}, "si_mtime": 9000, "si_ctime": 9000, "si_btime": 10}
-{"slot": 1, "gen": 2, "names": ["fit/only_v2.txt"], "streams": {"$DATA": "fit_v2"}, "si_mtime": 80, "si_ctime": 80, "si_btime": 70}
-{"slot": 2, "gen": 1, "names": ["fit/side.txt"], "streams": {"$DATA": "fit_side2", "tag": "fit_tag"}, "si_mtime": 60, "si_ctime": 60, "si_btime": 20}
-{"slot": 3, "gen": 1, "names": ["fit/half_moved.txt"], "streams": {"$DATA": "fit_half"}, "si_mtime": 55, "si_ctime": 55, "si_btime": 40}
-{"slot": 4, "gen": 1, "names": ["fit/ghost.txt"], "streams": {"$DATA": "fit_ghost", "aux": "fit_aux"}, "si_mtime": 5, "si_ctime": 5, "si_btime": 1}
+{"slot": 1, "gen": 2, "names": ["alpha/only_v2.txt"], "streams": {"$DATA": "alpha_v2"}, "si_mtime": 80, "si_ctime": 80, "si_btime": 70}
+{"slot": 2, "gen": 1, "names": ["alpha/side.txt"], "streams": {"$DATA": "alpha_side2", "tag": "alpha_tag"}, "si_mtime": 60, "si_ctime": 60, "si_btime": 20}
+{"slot": 3, "gen": 1, "names": ["alpha/half_moved.txt"], "streams": {"$DATA": "alpha_half"}, "si_mtime": 55, "si_ctime": 55, "si_btime": 40}
+{"slot": 4, "gen": 1, "names": ["alpha/ghost.txt"], "streams": {"$DATA": "alpha_ghost", "aux": "alpha_aux"}, "si_mtime": 5, "si_ctime": 5, "si_btime": 1}

@@ -44,9 +44,10 @@ chronological merge of the rotated oplog with txnlog-only inserts. When the two 
 of an adjacent pair come from different ledgers (one oplog row and one txnlog-only
 insert) they still coalesce into MOVE. Ledger origin must not block coalesce.
 
-Coalesced MOVE field values for `time`, `op_seq`, and `event_id` follow the legacy vault
-exporter behavior demonstrated by `/app/data/fit/alpha/expected/timeline.json`. The rename
-halves still supply `name_from` (OLD name) and `name_to` (NEW name).
+Coalesced MOVE field values for `time`, `op_seq`, and `event_id`, and the timeline `chain`
+hashes, follow the legacy vault exporter behavior demonstrated by the normative fit expected
+timelines under `/app/data/fit/*/expected/`. The rename halves still supply `name_from`
+(OLD name) and `name_to` (NEW name).
 
 The coalesced MOVE replaces both rename fragments in the timeline.
 
@@ -88,27 +89,22 @@ those claims, the path becomes poisoned at the first such conflict. A poisoned p
 from every incarnation's `names` list and is listed once in `poisoned_paths`. After poison,
 later claims must not revive the path into any incarnation's `names` (no revive).
 
-## Fit pack
+## Fit packs
 
-`/app/data/fit/alpha/` includes ledgers, normative worked examples at
-`/app/data/fit/alpha/expected/timeline.json` and
-`/app/data/fit/alpha/expected/ownership.json`, and
-`/app/data/fit/alpha/smoke_digests.json`.
+Every subdirectory of `/app/data/fit/` is a disclosed fit pack. Each pack includes ledgers and
+normative worked examples at `expected/timeline.json` and `expected/ownership.json`.
 
-The expected timeline and ownership documents are normative illustrations of this contract on
-the fit ledgers. Induce closed rules from this contract together with those expected documents.
-
-The smoke digests are sha256 hashes of the JSON text produced by the optional fit-smoke helper
-package under `/app/engine/` (orchestration via `pipeline.py`, thin `starter.py` re-export) on
-the fit ledgers. They only check that the helper still reproduces its fit calibration. They are
-not graded normative expecteds for work cases.
+Those expected documents are normative illustrations of this contract on the fit ledgers.
+Induce closed rules from this contract together with every fit pack's expected documents.
+Exporter field choices for coalesced MOVE (`time`, `op_seq`, `event_id`), timeline sort order,
+and the per-event `chain` field are pinned by those expected timelines. Individual packs may
+omit some rule branches. Collectively the fit expecteds uniquely determine the closed rules
+needed for graded work cases.
 
 Graded work-case behavior is uniquely determined by the end-state invariants in this contract
 together with the fit expected illustrations (identity, schemas, serialization, ownership /
-poison / stream invariants, wrap oldest-first, MOVE coalesce adjacency and legacy exporter field
-mapping, timeline sort order, corpus_index schema including `name_claim_count`).
-
-Passing fit smoke does not imply a correct work-case reconstruction.
+poison / stream invariants, wrap oldest-first, MOVE coalesce adjacency and legacy exporter
+fields, timeline sort order, chain hashes, corpus_index schema including `name_claim_count`).
 
 ## Work packs
 
@@ -134,9 +130,13 @@ timeline ordering: ascending `time`, then ascending `event_id`. Each event has:
 - `name_to` (string or null): set only for MOVE
 - `stream` (string or null)
 - `content` (string or null)
+- `chain` (string): long-horizon integrity hash over the sorted timeline. For the first event
+  in sorted order, `chain = sha256(f"VAULT1|{event_id}|{time}".encode()).hexdigest()[:16]`.
+  For each later event, `chain = sha256(f"{prev_chain}|{event_id}|{time}".encode()).hexdigest()[:16]`
+  where `prev_chain` is the prior event's `chain`.
 
 Serialize with UTF-8, `ensure_ascii` false, 2-space indent, trailing newline, and object key
-order exactly as listed above for each event.
+order exactly as listed above for each event (`chain` is the last key).
 
 `ownership.json` is a JSON object:
 

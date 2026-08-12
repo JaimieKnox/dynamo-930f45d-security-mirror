@@ -1,0 +1,11 @@
+{"op_seq": 65530, "slot": 20, "gen": 1, "kind": "CREATE", "wall": 1000, "name": "bravo/root.txt", "stream": "$DATA", "content": "bravo_r1"}
+{"op_seq": 65531, "slot": 20, "gen": 1, "kind": "CREATE_STREAM", "wall": 1010, "name": "bravo/root.txt", "stream": "zone", "content": "bravo_zone"}
+{"op_seq": 65532, "slot": 21, "gen": 1, "kind": "CREATE", "wall": 1100, "name": "bravo/shared.bin", "stream": "$DATA", "content": "bravo_s1"}
+{"op_seq": 65534, "slot": 22, "gen": 1, "kind": "CREATE", "wall": 1200, "name": "bravo/carrier.txt", "stream": "$DATA", "content": "bravo_car"}
+{"op_seq": 65536, "slot": 22, "gen": 1, "kind": "RENAME_NEW", "wall": 1220, "name": "bravo/carrier_v2.txt", "stream": null, "content": null}
+{"op_seq": 65537, "slot": 23, "gen": 1, "kind": "CREATE", "wall": 1300, "name": "bravo/other.txt", "stream": "$DATA", "content": "bravo_o1"}
+{"op_seq": 0, "slot": 23, "gen": 1, "kind": "LINK", "wall": 1310, "name": "bravo/shared.bin", "stream": null, "content": null}
+{"op_seq": 1, "slot": 20, "gen": 1, "kind": "DELETE", "wall": 1400, "name": "bravo/root.txt", "stream": null, "content": null}
+{"op_seq": 2, "slot": 20, "gen": 2, "kind": "CREATE", "wall": 1500, "name": "bravo/root2.txt", "stream": "$DATA", "content": "bravo_r2"}
+{"op_seq": 3, "slot": 20, "gen": 2, "kind": "CREATE_STREAM", "wall": 1510, "name": "bravo/root2.txt", "stream": "fresh", "content": "bravo_fresh"}
+{"op_seq": 4, "slot": 20, "gen": 2, "kind": "WRITE", "wall": 1520, "name": "bravo/root2.txt", "stream": "$DATA", "content": "bravo_r2b"}

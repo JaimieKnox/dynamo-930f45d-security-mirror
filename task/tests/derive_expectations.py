@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from reference_engine import (
+    annotate_chains,
     build_corpus_index,
     dumps_corpus_index,
     dumps_ownership,
@@ -38,6 +39,9 @@ def wrong_slot_only_merge(case_dir: Path) -> tuple[list[dict[str, Any]], dict[st
     for ev in tl:
         ev["gen"] = 1
         ev["event_id"] = f"{ev['slot']}:1:{ev['op_seq']}:{ev['kind']}"
+        ev.pop("chain", None)
+    tl.sort(key=lambda e: (e["time"], e["event_id"]))
+    annotate_chains(tl)
     own = copy.deepcopy(ownership)
     # Collapse incarnations by slot
     by_slot: dict[int, dict[str, Any]] = {}
@@ -99,6 +103,7 @@ def wrong_raw_op_seq_sort(case_dir: Path) -> tuple[list[dict[str, Any]], dict[st
             }
         )
     tl.sort(key=lambda e: (e["op_seq"], e["event_id"]))
+    annotate_chains(tl)
     _, own = reconstruct_case(case_dir)
     return tl, own
 
@@ -145,7 +150,6 @@ def wrong_no_poison(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any
     return timeline, own
 
 
-
 def wrong_no_half_pair_coalesce(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Refuse to coalesce MOVE when rename halves would require cross-ledger adjacency."""
     timeline, ownership = reconstruct_case(case_dir)
@@ -171,15 +175,19 @@ def wrong_no_half_pair_coalesce(case_dir: Path) -> tuple[list[dict[str, Any]], d
                 }
             )
         else:
+            ev = dict(ev)
+            ev.pop("chain", None)
             expanded.append(ev)
     expanded.sort(key=lambda e: (e["time"], e["event_id"]))
+    annotate_chains(expanded)
     return expanded, ownership
 
 
-
-
 def wrong_move_uses_new_wall(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Rival: coalesced MOVE time taken from RENAME_NEW wall instead of legacy OLD wall."""
+    """Rival: coalesced MOVE time taken from RENAME_NEW wall instead of legacy OLD wall.
+
+    Re-sorting and recomputing chain hashes cascades failures after the first wrong MOVE.
+    """
     import json as _json
 
     def load(p: Path):
@@ -204,7 +212,11 @@ def wrong_move_uses_new_wall(case_dir: Path) -> tuple[list[dict[str, Any]], dict
         key = (int(ev["slot"]), int(ev["gen"]), int(ev["op_seq"]))
         if key in new_walls:
             ev["time"] = new_walls[key]
+        ev.pop("chain", None)
+    for ev in tl:
+        ev.pop("chain", None)
     tl.sort(key=lambda e: (e["time"], e["event_id"]))
+    annotate_chains(tl)
     return tl, ownership
 
 

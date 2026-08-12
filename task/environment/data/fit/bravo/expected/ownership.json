@@ -1,0 +1,72 @@
+{
+  "incarnations": [
+    {
+      "id": "20:1",
+      "slot": 20,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "bravo_r1",
+        "zone": "bravo_zone"
+      }
+    },
+    {
+      "id": "20:2",
+      "slot": 20,
+      "gen": 2,
+      "names": [
+        "bravo/root2.txt"
+      ],
+      "streams": {
+        "$DATA": "bravo_r2b",
+        "fresh": "bravo_fresh"
+      }
+    },
+    {
+      "id": "21:1",
+      "slot": 21,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "bravo_s1"
+      }
+    },
+    {
+      "id": "22:1",
+      "slot": 22,
+      "gen": 1,
+      "names": [
+        "bravo/carrier_v2.txt"
+      ],
+      "streams": {
+        "$DATA": "bravo_car"
+      }
+    },
+    {
+      "id": "23:1",
+      "slot": 23,
+      "gen": 1,
+      "names": [
+        "bravo/other.txt"
+      ],
+      "streams": {
+        "$DATA": "bravo_o1"
+      }
+    },
+    {
+      "id": "24:1",
+      "slot": 24,
+      "gen": 1,
+      "names": [
+        "bravo/ghost.txt"
+      ],
+      "streams": {
+        "$DATA": "bravo_ghost",
+        "side": "bravo_side"
+      }
+    }
+  ],
+  "poisoned_paths": [
+    "bravo/shared.bin"
+  ]
+}

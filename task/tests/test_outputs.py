@@ -6,6 +6,7 @@ Residue contrasts are sealed in phase A.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 OUT_ROOT = Path("/app/output")
@@ -23,7 +24,9 @@ EVENT_KEYS = [
     "name_to",
     "stream",
     "content",
+    "chain",
 ]
+_CHAIN_RE = re.compile(r"^[0-9a-f]{16}$")
 
 
 def _load_seal() -> dict:
@@ -82,6 +85,8 @@ def test_timeline_schema_and_byte_contract():
             assert type(ev["op_seq"]) is int
             assert isinstance(ev["kind"], str)
             assert isinstance(ev["event_id"], str)
+            assert isinstance(ev["chain"], str)
+            assert _CHAIN_RE.fullmatch(ev["chain"]), ev["chain"]
         assert raw == seal["cases"][case]["timeline_text"]
 
 
@@ -106,7 +111,7 @@ def test_ownership_schema_and_byte_contract():
 
 
 def test_timeline_event_identity_and_order():
-    """Success criterion 4: event identities, kinds, times, and sort order match the contract."""
+    """Success criterion 4: event identities, kinds, times, order, and chain match the contract."""
     seal = _load_seal()
     case_ids = _case_ids(seal)
     for case in case_ids:
@@ -115,6 +120,8 @@ def test_timeline_event_identity_and_order():
         assert agent == exp_tl
         times = [(e["time"], e["event_id"]) for e in agent]
         assert times == sorted(times)
+        for ev in agent:
+            assert "chain" in ev and _CHAIN_RE.fullmatch(ev["chain"])
     if "echo" in case_ids:
         wrong_raw = seal["residue"]["echo_raw_op_seq_sort_timeline"]
         exp_echo_tl, _ = _expected(seal, "echo")
@@ -163,6 +170,7 @@ def test_ownership_incarnations_streams_and_poison():
         )
         assert golf_move["time"] == 1210
         assert golf_move["op_seq"] == 65528
+        assert "chain" in golf_move and _CHAIN_RE.fullmatch(golf_move["chain"])
         assert "golf/shared.bin" in exp_golf_own["poisoned_paths"]
         ghost = next(i for i in exp_golf_own["incarnations"] if i["id"] == "76:1")
         assert "golf/shared.bin" not in ghost["names"]
@@ -173,6 +181,16 @@ def test_ownership_incarnations_streams_and_poison():
         assert wrong_si != exp_golf_own
         wrong_move_wall = seal["residue"]["golf_wrong_move_uses_new_wall_timeline"]
         assert wrong_move_wall != exp_golf_tl
+        wrong_move = next(
+            e
+            for e in wrong_move_wall
+            if e["kind"] == "MOVE" and e.get("name_from") == "golf/carrier.txt"
+        )
+        assert wrong_move["time"] != golf_move["time"]
+        assert any(
+            exp_golf_tl[i]["chain"] != wrong_move_wall[i]["chain"]
+            for i in range(min(len(exp_golf_tl), len(wrong_move_wall)))
+        ), "NEW-wall MOVE rival must break chain integrity"
 
     if "hotel" in case_ids:
         exp_hotel_tl, exp_hotel_own = _expected(seal, "hotel")
@@ -216,4 +234,3 @@ def test_corpus_index_schema_and_byte_contract():
     assert type(data["name_claim_count"]) is int
     assert raw == seal["corpus_index_text"]
     assert data == seal["corpus_index"]
-

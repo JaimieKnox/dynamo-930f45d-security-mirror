@@ -1,0 +1,6 @@
+{"slot": 20, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 20, "gen": 2, "names": ["bravo/root2.txt"], "streams": {"$DATA": "bravo_r2b", "fresh": "bravo_fresh"}, "si_mtime": 1600, "si_ctime": 1600, "si_btime": 1500}
+{"slot": 21, "gen": 1, "names": [], "streams": {"$DATA": "bravo_s1"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 22, "gen": 1, "names": ["bravo/carrier_v2.txt"], "streams": {"$DATA": "bravo_car"}, "si_mtime": 1300, "si_ctime": 1300, "si_btime": 1200}
+{"slot": 23, "gen": 1, "names": ["bravo/other.txt"], "streams": {"$DATA": "bravo_o1"}, "si_mtime": 1400, "si_ctime": 1400, "si_btime": 1300}
+{"slot": 24, "gen": 1, "names": ["bravo/ghost.txt", "bravo/shared.bin"], "streams": {"$DATA": "bravo_ghost", "side": "bravo_side"}, "si_mtime": 50, "si_ctime": 50, "si_btime": 40}

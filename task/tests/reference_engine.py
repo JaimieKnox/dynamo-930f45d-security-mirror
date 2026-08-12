@@ -3,12 +3,28 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
 
 
 OP_SEQ_MOD = 65536
+
+EVENT_KEYS = [
+    "event_id",
+    "slot",
+    "gen",
+    "kind",
+    "time",
+    "op_seq",
+    "name",
+    "name_from",
+    "name_to",
+    "stream",
+    "content",
+    "chain",
+]
 
 
 def _load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -29,6 +45,22 @@ def _inc_id(slot: int, gen: int) -> str:
 
 def _event_id(slot: int, gen: int, op_seq: int, kind: str) -> str:
     return f"{slot}:{gen}:{op_seq}:{kind}"
+
+
+def annotate_chains(timeline: list[dict[str, Any]]) -> None:
+    """Set trailing `chain` on each event in sorted timeline order (mutates in place)."""
+    prev: str | None = None
+    for ev in timeline:
+        eid = str(ev["event_id"])
+        t = int(ev["time"])
+        if prev is None:
+            raw = f"VAULT1|{eid}|{t}"
+        else:
+            raw = f"{prev}|{eid}|{t}"
+        digest = hashlib.sha256(raw.encode()).hexdigest()[:16]
+        ev.pop("chain", None)
+        ev["chain"] = digest
+        prev = digest
 
 
 def _chronological_ops(
@@ -177,6 +209,7 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
         )
 
     timeline.sort(key=lambda e: (e["time"], e["event_id"]))
+    annotate_chains(timeline)
 
     # Ownership + poison from journalled claims.
     names: dict[str, set[str]] = {}

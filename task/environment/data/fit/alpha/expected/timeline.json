@@ -6,11 +6,12 @@
     "kind": "CREATE",
     "time": 10,
     "op_seq": 100,
-    "name": "fit/only.txt",
+    "name": "alpha/only.txt",
     "name_from": null,
     "name_to": null,
     "stream": "$DATA",
-    "content": "fit_v1"
+    "content": "alpha_v1",
+    "chain": "7fb2d54ac4a7c5db"
   },
   {
     "event_id": "1:1:101:WRITE",
@@ -19,11 +20,12 @@
     "kind": "WRITE",
     "time": 15,
     "op_seq": 101,
-    "name": "fit/only.txt",
+    "name": "alpha/only.txt",
     "name_from": null,
     "name_to": null,
     "stream": "$DATA",
-    "content": "fit_v1b"
+    "content": "alpha_v1b",
+    "chain": "4131ffa002662007"
   },
   {
     "event_id": "1:1:103:MOVE",
@@ -33,10 +35,11 @@
     "time": 18,
     "op_seq": 103,
     "name": null,
-    "name_from": "fit/only.txt",
-    "name_to": "fit/only_moved.txt",
+    "name_from": "alpha/only.txt",
+    "name_to": "alpha/only_moved.txt",
     "stream": null,
-    "content": null
+    "content": null,
+    "chain": "c4c098bde9b1c89f"
   },
   {
     "event_id": "2:1:104:CREATE",
@@ -45,11 +48,12 @@
     "kind": "CREATE",
     "time": 30,
     "op_seq": 104,
-    "name": "fit/side.txt",
+    "name": "alpha/side.txt",
     "name_from": null,
     "name_to": null,
     "stream": "$DATA",
-    "content": "fit_side"
+    "content": "alpha_side",
+    "chain": "df0ddd7da9886a1f"
   },
   {
     "event_id": "2:1:105:CREATE_STREAM",
@@ -58,11 +62,12 @@
     "kind": "CREATE_STREAM",
     "time": 35,
     "op_seq": 105,
-    "name": "fit/side.txt",
+    "name": "alpha/side.txt",
     "name_from": null,
     "name_to": null,
     "stream": "tag",
-    "content": "fit_tag"
+    "content": "alpha_tag",
+    "chain": "65ca832ae7896dd0"
   },
   {
     "event_id": "2:1:200:WRITE",
@@ -71,11 +76,12 @@
     "kind": "WRITE",
     "time": 36,
     "op_seq": 200,
-    "name": "fit/side.txt",
+    "name": "alpha/side.txt",
     "name_from": null,
     "name_to": null,
     "stream": "$DATA",
-    "content": "fit_side2"
+    "content": "alpha_side2",
+    "chain": "ce9727db93da288e"
   },
   {
     "event_id": "3:1:106:CREATE",
@@ -84,11 +90,12 @@
     "kind": "CREATE",
     "time": 40,
     "op_seq": 106,
-    "name": "fit/half.txt",
+    "name": "alpha/half.txt",
     "name_from": null,
     "name_to": null,
     "stream": "$DATA",
-    "content": "fit_half"
+    "content": "alpha_half",
+    "chain": "6bb5a90bdba15c48"
   },
   {
     "event_id": "1:1:109:WRITE",
@@ -97,11 +104,12 @@
     "kind": "WRITE",
     "time": 42,
     "op_seq": 109,
-    "name": "fit/only_moved.txt",
+    "name": "alpha/only_moved.txt",
     "name_from": null,
     "name_to": null,
     "stream": "$DATA",
-    "content": "fit_w"
+    "content": "alpha_w",
+    "chain": "97ed1d37ed42a35b"
   },
   {
     "event_id": "3:1:108:MOVE",
@@ -111,10 +119,11 @@
     "time": 42,
     "op_seq": 108,
     "name": null,
-    "name_from": "fit/half.txt",
-    "name_to": "fit/half_moved.txt",
+    "name_from": "alpha/half.txt",
+    "name_to": "alpha/half_moved.txt",
     "stream": null,
-    "content": null
+    "content": null,
+    "chain": "3129b90183983c66"
   },
   {
     "event_id": "1:1:65000:DELETE",
@@ -123,11 +132,12 @@
     "kind": "DELETE",
     "time": 50,
     "op_seq": 65000,
-    "name": "fit/only_moved.txt",
+    "name": "alpha/only_moved.txt",
     "name_from": null,
     "name_to": null,
     "stream": null,
-    "content": null
+    "content": null,
+    "chain": "969521c74fa337d3"
   },
   {
     "event_id": "1:2:65001:CREATE",
@@ -136,10 +146,11 @@
     "kind": "CREATE",
     "time": 70,
     "op_seq": 65001,
-    "name": "fit/only_v2.txt",
+    "name": "alpha/only_v2.txt",
     "name_from": null,
     "name_to": null,
     "stream": "$DATA",
-    "content": "fit_v2"
+    "content": "alpha_v2",
+    "chain": "6b06bc7fdeeb8417"
   }
 ]

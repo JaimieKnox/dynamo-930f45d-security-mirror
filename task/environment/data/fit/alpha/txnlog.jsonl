@@ -1,2 +1,2 @@
-{"op_seq": 104, "slot": 2, "gen": 1, "kind": "CREATE", "wall": 30, "name": "fit/side.txt", "stream": "$DATA", "content": "fit_side", "txn_id": 1}
-{"op_seq": 200, "slot": 2, "gen": 1, "kind": "WRITE", "wall": 36, "name": "fit/side.txt", "stream": "$DATA", "content": "fit_side2", "txn_id": 2}
+{"op_seq": 104, "slot": 2, "gen": 1, "kind": "CREATE", "wall": 30, "name": "alpha/side.txt", "stream": "$DATA", "content": "alpha_side", "txn_id": 1}
+{"op_seq": 200, "slot": 2, "gen": 1, "kind": "WRITE", "wall": 36, "name": "alpha/side.txt", "stream": "$DATA", "content": "alpha_side2", "txn_id": 2}

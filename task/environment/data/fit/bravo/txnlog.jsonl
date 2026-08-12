@@ -1,0 +1,2 @@
+{"op_seq": 65532, "slot": 21, "gen": 1, "kind": "CREATE", "wall": 1100, "name": "bravo/shared.bin", "stream": "$DATA", "content": "bravo_s1", "txn_id": 1}
+{"op_seq": 65535, "slot": 22, "gen": 1, "kind": "RENAME_OLD", "wall": 1210, "name": "bravo/carrier.txt", "stream": null, "content": null, "txn_id": 2}
