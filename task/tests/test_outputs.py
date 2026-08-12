@@ -113,7 +113,7 @@ def test_timeline_event_identity_and_order():
         agent = json.loads(_read_text(OUT_ROOT / case / "timeline.json"))
         exp_tl, _ = _expected(seal, case)
         assert agent == exp_tl
-        times = [(e["time"], e["op_seq"], e["event_id"]) for e in agent]
+        times = [(e["time"], e["event_id"]) for e in agent]
         assert times == sorted(times)
     if "echo" in case_ids:
         wrong_raw = seal["residue"]["echo_raw_op_seq_sort_timeline"]
@@ -121,6 +121,11 @@ def test_timeline_event_identity_and_order():
         assert wrong_raw != exp_echo_tl
         assert any(e["op_seq"] == 65533 for e in exp_echo_tl)
         assert any(e["kind"] == "MOVE" for e in exp_echo_tl)
+        move = next(e for e in exp_echo_tl if e["kind"] == "MOVE" and e.get("name_from") == "echo/stage.txt")
+        assert move["time"] == 1590
+        assert move["op_seq"] == 0
+        wrong_move_wall = seal["residue"]["echo_wrong_move_uses_new_wall_timeline"]
+        assert wrong_move_wall != exp_echo_tl
         wrong_slot = seal["residue"]["echo_slot_only_merge_timeline"]
         assert wrong_slot != exp_echo_tl
 
@@ -147,14 +152,17 @@ def test_ownership_incarnations_streams_and_poison():
         assert "aux" in ghost["streams"]
     if "golf" in case_ids:
         exp_golf_tl, exp_golf_own = _expected(seal, "golf")
-        assert any(
-            e["kind"] == "MOVE"
+        golf_move = next(
+            e
+            for e in exp_golf_tl
+            if e["kind"] == "MOVE"
             and e["slot"] == 72
             and e["gen"] == 1
             and e.get("name_from") == "golf/carrier.txt"
             and e.get("name_to") == "golf/carrier_v2.txt"
-            for e in exp_golf_tl
         )
+        assert golf_move["time"] == 1210
+        assert golf_move["op_seq"] == 65528
         assert "golf/shared.bin" in exp_golf_own["poisoned_paths"]
         ghost = next(i for i in exp_golf_own["incarnations"] if i["id"] == "76:1")
         assert "golf/shared.bin" not in ghost["names"]
@@ -163,17 +171,22 @@ def test_ownership_incarnations_streams_and_poison():
         assert wrong_half != exp_golf_tl
         wrong_si = seal["residue"]["golf_wrong_si_adopts_poisoned_ownership"]
         assert wrong_si != exp_golf_own
+        wrong_move_wall = seal["residue"]["golf_wrong_move_uses_new_wall_timeline"]
+        assert wrong_move_wall != exp_golf_tl
 
     if "hotel" in case_ids:
         exp_hotel_tl, exp_hotel_own = _expected(seal, "hotel")
-        assert any(
-            e["kind"] == "MOVE"
+        hotel_move = next(
+            e
+            for e in exp_hotel_tl
+            if e["kind"] == "MOVE"
             and e["slot"] == 82
             and e["gen"] == 1
             and e.get("name_from") == "hotel/carrier.txt"
             and e.get("name_to") == "hotel/carrier_v2.txt"
-            for e in exp_hotel_tl
         )
+        assert hotel_move["time"] == 1510
+        assert hotel_move["op_seq"] == 65528
         assert "hotel/shared.dat" in exp_hotel_own["poisoned_paths"]
         ghost = next(i for i in exp_hotel_own["incarnations"] if i["id"] == "89:1")
         assert "hotel/shared.dat" not in ghost["names"]

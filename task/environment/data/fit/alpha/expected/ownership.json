@@ -1,49 +1,58 @@
 {
   "incarnations": [
     {
-      "id": "10:1",
-      "slot": 10,
+      "id": "1:1",
+      "slot": 1,
       "gen": 1,
       "names": [],
       "streams": {
-        "$DATA": "a_r1b",
-        "meta": "a_meta"
+        "$DATA": "fit_w"
       }
     },
     {
-      "id": "10:2",
-      "slot": 10,
+      "id": "1:2",
+      "slot": 1,
       "gen": 2,
       "names": [
-        "alpha/root2.bin"
+        "fit/only_v2.txt"
       ],
       "streams": {
-        "$DATA": "a_r2b"
+        "$DATA": "fit_v2"
       }
     },
     {
-      "id": "11:1",
-      "slot": 11,
+      "id": "2:1",
+      "slot": 2,
       "gen": 1,
       "names": [
-        "alpha/carrier_link.txt",
-        "alpha/carrier_v2.txt"
+        "fit/side.txt"
       ],
       "streams": {
-        "$DATA": "a_car",
-        "note": "a_note"
+        "$DATA": "fit_side2",
+        "tag": "fit_tag"
       }
     },
     {
-      "id": "12:1",
-      "slot": 12,
+      "id": "3:1",
+      "slot": 3,
       "gen": 1,
       "names": [
-        "alpha/ghost.txt"
+        "fit/half_moved.txt"
       ],
       "streams": {
-        "$DATA": "a_ghost",
-        "aux": "a_aux"
+        "$DATA": "fit_half"
+      }
+    },
+    {
+      "id": "4:1",
+      "slot": 4,
+      "gen": 1,
+      "names": [
+        "fit/ghost.txt"
+      ],
+      "streams": {
+        "$DATA": "fit_ghost",
+        "aux": "fit_aux"
       }
     }
   ],

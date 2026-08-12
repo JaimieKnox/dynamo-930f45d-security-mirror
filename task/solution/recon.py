@@ -121,7 +121,7 @@ def _coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     "slot": int(row["slot"]),
                     "gen": int(row["gen"]),
                     "op_seq": int(new["op_seq"]),
-                    "wall": int(new["wall"]),
+                    "wall": int(row["wall"]),
                     "name_from": row.get("name"),
                     "name_to": new.get("name"),
                     "stream": None,
@@ -176,7 +176,7 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
             }
         )
 
-    timeline.sort(key=lambda e: (e["time"], e["op_seq"], e["event_id"]))
+    timeline.sort(key=lambda e: (e["time"], e["event_id"]))
 
     # Ownership + poison from journalled claims.
     names: dict[str, set[str]] = {}

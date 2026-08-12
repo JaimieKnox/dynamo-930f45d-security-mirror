@@ -172,8 +172,40 @@ def wrong_no_half_pair_coalesce(case_dir: Path) -> tuple[list[dict[str, Any]], d
             )
         else:
             expanded.append(ev)
-    expanded.sort(key=lambda e: (e["time"], e["op_seq"], e["event_id"]))
+    expanded.sort(key=lambda e: (e["time"], e["event_id"]))
     return expanded, ownership
+
+
+
+
+def wrong_move_uses_new_wall(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Rival: coalesced MOVE time taken from RENAME_NEW wall instead of legacy OLD wall."""
+    import json as _json
+
+    def load(p: Path):
+        rows = []
+        for line in p.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                rows.append(_json.loads(line))
+        return rows
+
+    timeline, ownership = reconstruct_case(case_dir)
+    oplog = load(case_dir / "oplog.jsonl")
+    txnlog = load(case_dir / "txnlog.jsonl")
+    new_walls: dict[tuple[int, int, int], int] = {}
+    for row in list(oplog) + list(txnlog):
+        if row.get("kind") == "RENAME_NEW":
+            key = (int(row["slot"]), int(row["gen"]), int(row["op_seq"]))
+            new_walls[key] = int(row["wall"])
+    tl = copy.deepcopy(timeline)
+    for ev in tl:
+        if ev.get("kind") != "MOVE":
+            continue
+        key = (int(ev["slot"]), int(ev["gen"]), int(ev["op_seq"]))
+        if key in new_walls:
+            ev["time"] = new_walls[key]
+    tl.sort(key=lambda e: (e["time"], e["event_id"]))
+    return tl, ownership
 
 
 def wrong_si_adopts_poisoned(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -248,12 +280,17 @@ def main() -> int:
     if "golf" in cases_list:
         wrong_golf_half, _ = wrong_no_half_pair_coalesce(TESTS_IN / "golf")
         _, wrong_golf_si = wrong_si_adopts_poisoned(TESTS_IN / "golf")
+        wrong_golf_move_wall, _ = wrong_move_uses_new_wall(TESTS_IN / "golf")
         residue.update(
             {
                 "golf_wrong_no_half_pair_coalesce_timeline": wrong_golf_half,
                 "golf_wrong_si_adopts_poisoned_ownership": wrong_golf_si,
+                "golf_wrong_move_uses_new_wall_timeline": wrong_golf_move_wall,
             }
         )
+    if "echo" in cases_list and "echo_wrong_move_uses_new_wall_timeline" not in residue:
+        wrong_echo_move_wall, _ = wrong_move_uses_new_wall(TESTS_IN / "echo")
+        residue["echo_wrong_move_uses_new_wall_timeline"] = wrong_echo_move_wall
 
     corpus_index = build_corpus_index(TESTS_IN)
     payload = {

@@ -1,9 +1,0 @@
-{"op_seq": 65530, "slot": 30, "gen": 1, "kind": "CREATE", "wall": 10, "name": "charlie/stage.txt", "stream": "$DATA", "content": "c_s1"}
-{"op_seq": 65531, "slot": 30, "gen": 1, "kind": "CREATE_STREAM", "wall": 20, "name": "charlie/stage.txt", "stream": "meta", "content": "c_meta"}
-{"op_seq": 65532, "slot": 30, "gen": 1, "kind": "RENAME_OLD", "wall": 30, "name": "charlie/stage.txt", "stream": null, "content": null}
-{"op_seq": 0, "slot": 30, "gen": 1, "kind": "RENAME_NEW", "wall": 40, "name": "charlie/staged.txt", "stream": null, "content": null}
-{"op_seq": 1, "slot": 31, "gen": 1, "kind": "CREATE", "wall": 50, "name": "charlie/solo.txt", "stream": "$DATA", "content": "c_solo"}
-{"op_seq": 2, "slot": 31, "gen": 1, "kind": "RENAME_NEW", "wall": 60, "name": "charlie/orphan.txt", "stream": null, "content": null}
-{"op_seq": 3, "slot": 30, "gen": 1, "kind": "DELETE", "wall": 70, "name": "charlie/staged.txt", "stream": null, "content": null}
-{"op_seq": 4, "slot": 30, "gen": 2, "kind": "CREATE", "wall": 80, "name": "charlie/live.bin", "stream": "$DATA", "content": "c_g2"}
-{"op_seq": 5, "slot": 30, "gen": 2, "kind": "CREATE_STREAM", "wall": 90, "name": "charlie/live.bin", "stream": "fresh", "content": "c_fresh"}

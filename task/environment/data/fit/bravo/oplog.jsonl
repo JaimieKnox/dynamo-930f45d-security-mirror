@@ -1,9 +1,0 @@
-{"op_seq": 65000, "slot": 20, "gen": 1, "kind": "CREATE", "wall": 1000, "name": "bravo/keep.txt", "stream": "$DATA", "content": "b_keep"}
-{"op_seq": 65001, "slot": 21, "gen": 1, "kind": "CREATE", "wall": 1100, "name": "bravo/shared.dat", "stream": "$DATA", "content": "b_a"}
-{"op_seq": 65002, "slot": 21, "gen": 1, "kind": "CREATE_STREAM", "wall": 1110, "name": "bravo/shared.dat", "stream": "mark", "content": "b_mark"}
-{"op_seq": 65004, "slot": 22, "gen": 1, "kind": "CREATE", "wall": 1300, "name": "bravo/shared.dat", "stream": "$DATA", "content": "b_b"}
-{"op_seq": 65005, "slot": 21, "gen": 1, "kind": "LINK", "wall": 1400, "name": "bravo/shared.dat", "stream": null, "content": null}
-{"op_seq": 0, "slot": 20, "gen": 1, "kind": "WRITE", "wall": 1500, "name": "bravo/keep.txt", "stream": "$DATA", "content": "b_keep2"}
-{"op_seq": 1, "slot": 23, "gen": 1, "kind": "CREATE", "wall": 1600, "name": "bravo/tmp.txt", "stream": "$DATA", "content": "b_tmp"}
-{"op_seq": 2, "slot": 23, "gen": 1, "kind": "DELETE", "wall": 1700, "name": "bravo/tmp.txt", "stream": null, "content": null}
-{"op_seq": 3, "slot": 24, "gen": 1, "kind": "CREATE", "wall": 1800, "name": "bravo/tmp.txt", "stream": "$DATA", "content": "b_tmp2"}
