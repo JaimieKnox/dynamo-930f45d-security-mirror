@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from . import shared
 from .chrono import chronological_ops
 from .coalesce import coalesce
 from .index import build_corpus_index_from_cases
@@ -46,7 +47,9 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
     oplog = _load_jsonl(case_dir / "oplog.jsonl")
     txnlog = _load_jsonl(case_dir / "txnlog.jsonl")
 
+    shared.reset_case_buffers()
     ordered = chronological_ops(oplog, txnlog)
+    shared.pending_rename_olds.clear()
     events_raw = coalesce(ordered)
 
     timeline: list[dict[str, Any]] = []

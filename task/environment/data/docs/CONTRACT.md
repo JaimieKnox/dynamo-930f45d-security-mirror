@@ -32,8 +32,8 @@ follow by ascending `(op_seq - start) mod 65536`.
 When the oplog both wraps and is missing one or more operations that appear in `txnlog.jsonl`,
 those txnlog-only operations are inserted into that same rotated order by their `op_seq`
 distance from `start`. Journal evidence from txnlog is authoritative for placing those missing
-operations. Sorting raw `op_seq` as plain integers is wrong once a wrap exists. Ignoring txnlog
-when a wrap and a gap co-occur is wrong.
+operations. Chronology is the rotated oldest-first sequence with those inserts applied. Raw
+integer `op_seq` order alone does not define chronology when a wrap is present.
 
 ## Rename coalesce
 
@@ -44,7 +44,7 @@ chronological merge of the rotated oplog with txnlog-only inserts. When the two 
 of an adjacent pair come from different ledgers (one oplog row and one txnlog-only
 insert) they still coalesce into MOVE. Ledger origin must not block coalesce. The MOVE
 uses the OLD name as `name_from`, the NEW name as `name_to`, and the journal `wall`
-from the NEW row. Emitting both rename fragments as separate timeline events is wrong.
+from the NEW row. The coalesced MOVE replaces both rename fragments in the timeline.
 
 A `RENAME_NEW` that is not preceded by a matching `RENAME_OLD` on the same incarnation is a
 standalone `RENAME_NEW` event.
@@ -53,8 +53,7 @@ standalone `RENAME_NEW` event.
 
 When an operation has journal evidence (it appears in the ordered oplog or as an inserted
 txnlog-only row), that row's `wall` is the event time. Object-table SI times are authoritative
-only for residual end-state facts that have no journal evidence. Preferring SI times for
-journalled operations is wrong.
+only for residual end-state facts that have no journal evidence.
 
 If an incarnation has at least one journalled event, ownership names and streams come only
 from those journalled events (and the poison rules below). Object-table rows for that
@@ -88,16 +87,15 @@ later claims must not revive the path into any incarnation's `names` (no revive)
 ## Fit pack
 
 `/app/data/fit/alpha/` includes ledgers and `/app/data/fit/alpha/smoke_digests.json`.
-Those smoke digests are sha256 hashes of the JSON text produced by the shipped partial helper
-multi-module engine package (`/app/engine/`, orchestration via `pipeline.py`, thin `starter.py`
-re-export) on the fit ledgers. They are a non-normative smoke check for that fit smoke scaffold
-only. They are not graded normative expected timeline or ownership documents for work cases.
-Graded behavior is uniquely determined by the end-state invariants in this contract together with
-the fit ledger topology (identity, schemas, serialization, ownership/poison/stream invariants,
-wrap oldest-first, MOVE coalesce adjacency, corpus_index schema).
+Those smoke digests are sha256 hashes of the JSON text produced by the shipped almost-correct
+multi-module helper package (`/app/engine/`, orchestration via `pipeline.py`, thin `starter.py`
+re-export) on the fit ledgers. They are a non-normative smoke check for that fit-smoke-calibrated
+scaffold only. They are not graded normative expected timeline or ownership documents for work
+cases. Graded behavior is uniquely determined by the end-state invariants in this contract
+together with the fit ledger topology (identity, schemas, serialization, ownership/poison/stream
+invariants, wrap oldest-first, MOVE coalesce adjacency, corpus_index schema).
 
-The shipped engine package is a partial helper and fit-smoke-calibrated relative to this
-contract. Passing fit smoke does not imply a correct work-case reconstruction.
+Passing fit smoke does not imply a correct work-case reconstruction.
 
 ## Work packs
 
@@ -147,6 +145,7 @@ order is `incarnations` then `poisoned_paths`. Incarnation object key order is
 - `poisoned_paths` (array of strings, sorted ascending): union of `poisoned_paths` across cases
 - `incarnation_count` (integer): sum of incarnation array lengths across cases
 - `move_event_count` (integer): sum of timeline events with `kind` equal to `MOVE` across cases
+- `name_claim_count` (integer): sum of `len(names)` across every incarnation across cases
 
 Serialize with UTF-8, `ensure_ascii` false, 2-space indent, trailing newline. Top-level key
-order is `case_ids`, `poisoned_paths`, `incarnation_count`, `move_event_count`.
+order is `case_ids`, `poisoned_paths`, `incarnation_count`, `move_event_count`, `name_claim_count`.

@@ -1,4 +1,4 @@
-"""Oplog coalescing helper used by the fit smoke pipeline."""
+"""Rename coalesce helper for the fit smoke pipeline."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from typing import Any
 
 
 def coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Coalesce adjacent RENAME_OLD+RENAME_NEW pairs into MOVE events."""
+    """Coalesce adjacent same-incarnation rename pairs from the primary journal buffer."""
     out: list[dict[str, Any]] = []
     i = 0
     while i < len(ops):

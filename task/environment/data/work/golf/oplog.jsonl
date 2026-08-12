@@ -27,3 +27,10 @@
 {"op_seq": 11, "slot": 72, "gen": 1, "kind": "LINK", "wall": 2000, "name": "golf/carrier_link.txt", "stream": null, "content": null}
 {"op_seq": 12, "slot": 72, "gen": 1, "kind": "WRITE", "wall": 2010, "name": "golf/carrier_v2.txt", "stream": "$DATA", "content": "golf_car3"}
 {"op_seq": 13, "slot": 75, "gen": 1, "kind": "DELETE", "wall": 2100, "name": "golf/late.txt", "stream": null, "content": null}
+{"op_seq": 14, "slot": 77, "gen": 1, "kind": "CREATE", "wall": 2200, "name": "golf/extra.txt", "stream": "$DATA", "content": "golf_ex"}
+{"op_seq": 15, "slot": 77, "gen": 1, "kind": "WRITE", "wall": 2210, "name": "golf/extra.txt", "stream": "$DATA", "content": "golf_ex2"}
+{"op_seq": 16, "slot": 71, "gen": 1, "kind": "LINK", "wall": 2300, "name": "golf/shared.bin", "stream": null, "content": null}
+{"op_seq": 17, "slot": 78, "gen": 1, "kind": "CREATE", "wall": 2400, "name": "golf/clean_a.txt", "stream": "$DATA", "content": "golf_ca"}
+{"op_seq": 18, "slot": 78, "gen": 1, "kind": "DELETE", "wall": 2410, "name": "golf/clean_a.txt", "stream": null, "content": null}
+{"op_seq": 19, "slot": 79, "gen": 1, "kind": "CREATE", "wall": 2420, "name": "golf/clean_a.txt", "stream": "$DATA", "content": "golf_cb"}
+{"op_seq": 20, "slot": 79, "gen": 1, "kind": "WRITE", "wall": 2430, "name": "golf/clean_a.txt", "stream": "$DATA", "content": "golf_cb2"}

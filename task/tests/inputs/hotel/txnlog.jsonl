@@ -1,0 +1,2 @@
+{"op_seq": 65526, "slot": 82, "gen": 1, "kind": "WRITE", "wall": 1500, "name": "hotel/carrier.txt", "stream": "$DATA", "content": "hotel_car3", "txn_id": 1}
+{"op_seq": 65527, "slot": 82, "gen": 1, "kind": "RENAME_OLD", "wall": 1510, "name": "hotel/carrier.txt", "stream": null, "content": null, "txn_id": 2}

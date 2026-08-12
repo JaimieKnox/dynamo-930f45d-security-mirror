@@ -1,8 +1,10 @@
-"""Ownership reconstruction helper used by the fit smoke pipeline."""
+"""Ownership reconstruction helper for the fit smoke pipeline."""
 
 from __future__ import annotations
 
 from typing import Any
+
+from . import shared
 
 
 def _inc_id(slot: int, gen: int) -> str:
@@ -13,40 +15,45 @@ def build_ownership(
     timeline: list[dict[str, Any]], objects: list[dict[str, Any]]
 ) -> dict[str, Any]:
     names: dict[str, set[str]] = {}
-    streams: dict[str, dict[str, str]] = {}
-    path_owner: dict[str, str] = {}
+    shared.stream_scratch.clear()
+    shared.path_claims.clear()
 
     def ensure(inc: str) -> None:
         names.setdefault(inc, set())
-        streams.setdefault(inc, {})
+
+    def streams_for(slot: int) -> dict[str, str]:
+        return shared.stream_scratch.setdefault(slot, {})
 
     for ev in timeline:
-        inc = _inc_id(ev["slot"], ev["gen"])
+        slot = int(ev["slot"])
+        gen = int(ev["gen"])
+        inc = _inc_id(slot, gen)
         ensure(inc)
         kind = ev["kind"]
+        bucket = streams_for(slot)
 
         def claim(path: str | None) -> None:
             if not path:
                 return
-            prev = path_owner.get(path)
+            prev = shared.path_claims.get(path)
             if prev is not None and prev != inc:
                 names[prev].discard(path)
-            path_owner[path] = inc
+            shared.path_claims[path] = inc
             names[inc].add(path)
 
         def release(path: str | None) -> None:
             if not path:
                 return
             names[inc].discard(path)
-            if path_owner.get(path) == inc:
-                path_owner.pop(path, None)
+            if shared.path_claims.get(path) == inc:
+                shared.path_claims.pop(path, None)
 
         if kind == "CREATE":
             claim(ev.get("name"))
             stream = ev.get("stream") or "$DATA"
             content = ev.get("content")
             if content is not None:
-                streams[inc][stream] = content
+                bucket[stream] = content
         elif kind == "LINK":
             claim(ev.get("name"))
         elif kind == "MOVE":
@@ -62,29 +69,26 @@ def build_ownership(
             stream = ev.get("stream") or "$DATA"
             content = ev.get("content")
             if content is not None:
-                streams[inc][stream] = content
+                bucket[stream] = content
         elif kind == "CREATE_STREAM":
             stream = ev.get("stream")
             content = ev.get("content")
             if stream and content is not None:
-                streams[inc][stream] = content
+                bucket[stream] = content
         elif kind == "DELETE_STREAM":
             stream = ev.get("stream")
             if stream:
-                streams[inc].pop(stream, None)
+                bucket.pop(stream, None)
 
-    by_slot: dict[int, list[str]] = {}
-    for inc in list(streams.keys()):
+    # Publish slot-keyed stream scratch onto each incarnation present.
+    streams: dict[str, dict[str, str]] = {}
+    for inc in list(names.keys()):
         slot = int(inc.split(":")[0])
-        by_slot.setdefault(slot, []).append(inc)
-    for _slot, incs in by_slot.items():
-        incs_sorted = sorted(incs, key=lambda x: int(x.split(":")[1]))
-        carried: dict[str, str] = {}
-        for inc in incs_sorted:
-            carried.update(streams.get(inc, {}))
-            streams[inc] = dict(carried)
+        streams[inc] = dict(shared.stream_scratch.get(slot, {}))
 
     journalled = {_inc_id(e["slot"], e["gen"]) for e in timeline}
+    # Rebuild residual names from the object table after the journal pass.
+    shared.path_claims.clear()
     for obj in objects:
         inc = _inc_id(int(obj["slot"]), int(obj["gen"]))
         if inc in journalled:
@@ -94,7 +98,7 @@ def build_ownership(
         for n in obj.get("names") or []:
             names[inc].add(n)
         for sname, digest in (obj.get("streams") or {}).items():
-            streams[inc][sname] = digest
+            streams.setdefault(inc, {})[sname] = digest
 
     incarnations = []
     for inc in sorted(names.keys(), key=lambda x: (int(x.split(":")[0]), int(x.split(":")[1]))):
@@ -105,7 +109,7 @@ def build_ownership(
                 "slot": int(slot_s),
                 "gen": int(gen_s),
                 "names": sorted(names[inc]),
-                "streams": {k: streams[inc][k] for k in sorted(streams.get(inc, {}).keys())},
+                "streams": {k: streams.get(inc, {})[k] for k in sorted(streams.get(inc, {}).keys())},
             }
         )
 

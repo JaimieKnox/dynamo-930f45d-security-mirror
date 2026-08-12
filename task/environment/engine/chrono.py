@@ -1,4 +1,4 @@
-"""Chronological merge helper used by the fit smoke pipeline."""
+"""Chronological merge helper for the fit smoke pipeline."""
 
 from __future__ import annotations
 

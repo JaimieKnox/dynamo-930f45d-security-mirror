@@ -3,3 +3,8 @@
 {"op_seq": 22, "slot": 60, "gen": 1, "kind": "DELETE", "wall": 200, "name": "fox/xfer.txt", "stream": null, "content": null}
 {"op_seq": 23, "slot": 61, "gen": 1, "kind": "CREATE", "wall": 250, "name": "fox/xfer.txt", "stream": "$DATA", "content": "fox_b"}
 {"op_seq": 24, "slot": 60, "gen": 1, "kind": "DELETE", "wall": 300, "name": "fox/orphan_name.txt", "stream": null, "content": null}
+{"op_seq": 25, "slot": 63, "gen": 1, "kind": "CREATE", "wall": 350, "name": "fox/clash.txt", "stream": "$DATA", "content": "fox_c1"}
+{"op_seq": 26, "slot": 64, "gen": 1, "kind": "CREATE", "wall": 400, "name": "fox/clash.txt", "stream": "$DATA", "content": "fox_c2"}
+{"op_seq": 27, "slot": 63, "gen": 1, "kind": "LINK", "wall": 450, "name": "fox/clash.txt", "stream": null, "content": null}
+{"op_seq": 28, "slot": 65, "gen": 1, "kind": "CREATE", "wall": 500, "name": "fox/keep.txt", "stream": "$DATA", "content": "fox_k"}
+{"op_seq": 29, "slot": 65, "gen": 1, "kind": "WRITE", "wall": 510, "name": "fox/keep.txt", "stream": "$DATA", "content": "fox_k2"}

@@ -1,0 +1,12 @@
+{"slot": 80, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 80, "gen": 2, "names": ["hotel/root2.txt"], "streams": {"$DATA": "hotel_r2b", "fresh": "hotel_fresh"}, "si_mtime": 1820, "si_ctime": 1820, "si_btime": 1800}
+{"slot": 81, "gen": 1, "names": [], "streams": {"$DATA": "hotel_a2", "mark": "hotel_mark"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 82, "gen": 1, "names": ["hotel/carrier_v2.txt", "hotel/carrier_link.txt"], "streams": {"$DATA": "hotel_car3", "note": "hotel_note"}, "si_mtime": 2100, "si_ctime": 2100, "si_btime": 1400}
+{"slot": 83, "gen": 1, "names": ["hotel/other.txt"], "streams": {"$DATA": "hotel_o"}, "si_mtime": 1600, "si_ctime": 1600, "si_btime": 1600}
+{"slot": 84, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 84, "gen": 2, "names": ["hotel/pad2.txt"], "streams": {"$DATA": "hotel_p2b"}, "si_mtime": 2020, "si_ctime": 2020, "si_btime": 2010}
+{"slot": 85, "gen": 1, "names": ["hotel/noise1.txt"], "streams": {"$DATA": "hotel_n1b"}, "si_mtime": 1310, "si_ctime": 1310, "si_btime": 1300}
+{"slot": 86, "gen": 1, "names": ["hotel/orphan.txt"], "streams": {"$DATA": "hotel_late"}, "si_mtime": 1910, "si_ctime": 1910, "si_btime": 1900}
+{"slot": 87, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 88, "gen": 1, "names": ["hotel/clean_a.txt"], "streams": {"$DATA": "hotel_cb2"}, "si_mtime": 2230, "si_ctime": 2230, "si_btime": 2220}
+{"slot": 89, "gen": 1, "names": ["hotel/ghost.txt", "hotel/shared.dat"], "streams": {"$DATA": "hotel_ghost", "side": "hotel_side"}, "si_mtime": 50, "si_ctime": 50, "si_btime": 40}
