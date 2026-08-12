@@ -145,6 +145,28 @@ def test_ownership_incarnations_streams_and_poison():
         ghost = next(i for i in exp_fox["incarnations"] if i["id"] == "62:1")
         assert ghost["names"] == ["fox/ghost.txt"]
         assert "aux" in ghost["streams"]
+        assert "fox/clash.txt" in exp_fox["poisoned_paths"]
+        si = next(i for i in exp_fox["incarnations"] if i["id"] == "66:1")
+        assert "fox/clash.txt" not in si["names"]
+        assert "fox/si_only.txt" in si["names"]
+    if "golf" in case_ids:
+        exp_golf_tl, exp_golf_own = _expected(seal, "golf")
+        assert any(
+            e["kind"] == "MOVE"
+            and e["slot"] == 72
+            and e["gen"] == 1
+            and e.get("name_from") == "golf/carrier.txt"
+            and e.get("name_to") == "golf/carrier_v2.txt"
+            for e in exp_golf_tl
+        )
+        assert "golf/shared.bin" in exp_golf_own["poisoned_paths"]
+        ghost = next(i for i in exp_golf_own["incarnations"] if i["id"] == "76:1")
+        assert "golf/shared.bin" not in ghost["names"]
+        assert "golf/ghost.txt" in ghost["names"]
+        wrong_half = seal["residue"]["golf_wrong_no_half_pair_coalesce_timeline"]
+        assert wrong_half != exp_golf_tl
+        wrong_si = seal["residue"]["golf_wrong_si_adopts_poisoned_ownership"]
+        assert wrong_si != exp_golf_own
 
 
 def test_corpus_index_schema_and_byte_contract():
@@ -159,6 +181,7 @@ def test_corpus_index_schema_and_byte_contract():
         "move_event_count",
     ]
     assert data["case_ids"] == list(_case_ids(seal))
+    assert "golf" in data["case_ids"]
     assert data["poisoned_paths"] == sorted(data["poisoned_paths"])
     assert type(data["incarnation_count"]) is int
     assert type(data["move_event_count"]) is int

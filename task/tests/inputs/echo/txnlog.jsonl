@@ -1,1 +1,2 @@
-{"op_seq": 65533, "slot": 51, "gen": 1, "kind": "WRITE", "wall": 130, "name": "echo/shared.dat", "stream": "$DATA", "content": "echo_a2", "txn_id": 7}
+{"op_seq": 65533, "slot": 51, "gen": 1, "kind": "WRITE", "wall": 1565, "name": "echo/shared.dat", "stream": "$DATA", "content": "echo_a3", "txn_id": 7}
+{"op_seq": 65534, "slot": 50, "gen": 1, "kind": "RENAME_OLD", "wall": 1590, "name": "echo/stage.txt", "stream": null, "content": null, "txn_id": 8}

@@ -1,3 +1,7 @@
 {"slot": 60, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
 {"slot": 61, "gen": 1, "names": ["fox/xfer.txt"], "streams": {"$DATA": "fox_b"}, "si_mtime": 500, "si_ctime": 500, "si_btime": 400}
 {"slot": 62, "gen": 1, "names": ["fox/ghost.txt"], "streams": {"$DATA": "fox_ghost", "aux": "fox_aux"}, "si_mtime": 50, "si_ctime": 50, "si_btime": 40}
+{"slot": 63, "gen": 1, "names": [], "streams": {"$DATA": "fox_c1"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 64, "gen": 1, "names": [], "streams": {"$DATA": "fox_c2"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 65, "gen": 1, "names": ["fox/keep.txt"], "streams": {"$DATA": "fox_k2"}, "si_mtime": 510, "si_ctime": 510, "si_btime": 500}
+{"slot": 66, "gen": 1, "names": ["fox/clash.txt", "fox/si_only.txt"], "streams": {"$DATA": "fox_si"}, "si_mtime": 40, "si_ctime": 40, "si_btime": 30}

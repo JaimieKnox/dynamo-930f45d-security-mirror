@@ -145,6 +145,79 @@ def wrong_no_poison(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any
     return timeline, own
 
 
+
+def wrong_no_half_pair_coalesce(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Refuse to coalesce MOVE when rename halves would require cross-ledger adjacency."""
+    timeline, ownership = reconstruct_case(case_dir)
+    tl = copy.deepcopy(timeline)
+    expanded: list[dict[str, Any]] = []
+    for ev in tl:
+        if ev.get("kind") == "MOVE":
+            slot = ev["slot"]
+            gen = ev["gen"]
+            expanded.append(
+                {
+                    "event_id": f"{slot}:{gen}:{ev['op_seq']}:RENAME_NEW",
+                    "slot": slot,
+                    "gen": gen,
+                    "kind": "RENAME_NEW",
+                    "time": ev["time"],
+                    "op_seq": ev["op_seq"],
+                    "name": ev.get("name_to"),
+                    "name_from": None,
+                    "name_to": None,
+                    "stream": None,
+                    "content": None,
+                }
+            )
+        else:
+            expanded.append(ev)
+    expanded.sort(key=lambda e: (e["time"], e["op_seq"], e["event_id"]))
+    return expanded, ownership
+
+
+def wrong_si_adopts_poisoned(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """SI-only residual adopts object-table names even when already poisoned."""
+    timeline, ownership = reconstruct_case(case_dir)
+    own = copy.deepcopy(ownership)
+    objects = []
+    obj_path = case_dir / "objects.jsonl"
+    if obj_path.is_file():
+        for line in obj_path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                objects.append(json.loads(line))
+    journalled = {(e["slot"], e["gen"]) for e in timeline}
+    poisoned = set(own.get("poisoned_paths") or [])
+    by_id = {i["id"]: i for i in own["incarnations"]}
+    for obj in objects:
+        key = (int(obj["slot"]), int(obj["gen"]))
+        if key in journalled:
+            continue
+        inc_id = f"{key[0]}:{key[1]}"
+        if inc_id not in by_id:
+            by_id[inc_id] = {
+                "id": inc_id,
+                "slot": key[0],
+                "gen": key[1],
+                "names": [],
+                "streams": {},
+            }
+        names = set(by_id[inc_id]["names"])
+        for n in obj.get("names") or []:
+            if n in poisoned:
+                names.add(n)
+        by_id[inc_id]["names"] = sorted(names)
+        streams = dict(by_id[inc_id]["streams"])
+        for sname, digest in (obj.get("streams") or {}).items():
+            streams[sname] = digest
+        by_id[inc_id]["streams"] = {k: streams[k] for k in sorted(streams)}
+    own["incarnations"] = [
+        by_id[i]
+        for i in sorted(by_id.keys(), key=lambda x: (int(x.split(":")[0]), int(x.split(":")[1])))
+    ]
+    return timeline, own
+
+
 def main() -> int:
     SEAL_PATH.parent.mkdir(parents=True, exist_ok=True)
     cases_list = discover_cases()
@@ -164,12 +237,23 @@ def main() -> int:
         wrong_echo_slot, _ = wrong_slot_only_merge(TESTS_IN / "echo")
         _, wrong_echo_stream = wrong_stream_inherit(TESTS_IN / "echo")
         _, wrong_echo_poison = wrong_no_poison(TESTS_IN / "echo")
-        residue = {
-            "echo_raw_op_seq_sort_timeline": wrong_echo_raw,
-            "echo_slot_only_merge_timeline": wrong_echo_slot,
-            "echo_stream_inherit_ownership": wrong_echo_stream,
-            "echo_no_poison_ownership": wrong_echo_poison,
-        }
+        residue.update(
+            {
+                "echo_raw_op_seq_sort_timeline": wrong_echo_raw,
+                "echo_slot_only_merge_timeline": wrong_echo_slot,
+                "echo_stream_inherit_ownership": wrong_echo_stream,
+                "echo_no_poison_ownership": wrong_echo_poison,
+            }
+        )
+    if "golf" in cases_list:
+        wrong_golf_half, _ = wrong_no_half_pair_coalesce(TESTS_IN / "golf")
+        _, wrong_golf_si = wrong_si_adopts_poisoned(TESTS_IN / "golf")
+        residue.update(
+            {
+                "golf_wrong_no_half_pair_coalesce_timeline": wrong_golf_half,
+                "golf_wrong_si_adopts_poisoned_ownership": wrong_golf_si,
+            }
+        )
 
     corpus_index = build_corpus_index(TESTS_IN)
     payload = {

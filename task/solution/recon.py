@@ -102,6 +102,7 @@ def _chronological_ops(
 
 
 def _coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Coalesce adjacent RENAME_OLD+RENAME_NEW after full merge, any ledger origin."""
     out: list[dict[str, Any]] = []
     i = 0
     while i < len(ops):
@@ -266,6 +267,7 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
             e["slot"] == int(obj["slot"]) and e["gen"] == int(obj["gen"]) for e in timeline
         )
         if not has_journal:
+            # SI-only residual: adopt OT names/streams, but never revive poisoned names.
             for n in obj.get("names") or []:
                 if n not in poisoned:
                     names[inc].add(n)

@@ -1,0 +1,2 @@
+{"op_seq": 65523, "slot": 71, "gen": 1, "kind": "CREATE", "wall": 1100, "name": "golf/shared.bin", "stream": "$DATA", "content": "golf_s1", "txn_id": 1}
+{"op_seq": 65527, "slot": 72, "gen": 1, "kind": "RENAME_OLD", "wall": 1210, "name": "golf/carrier.txt", "stream": null, "content": null, "txn_id": 2}

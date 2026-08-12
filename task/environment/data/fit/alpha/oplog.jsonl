@@ -4,5 +4,7 @@
 {"op_seq": 103, "slot": 1, "gen": 1, "kind": "RENAME_NEW", "wall": 20, "name": "fit/only_moved.txt", "stream": null, "content": null}
 {"op_seq": 104, "slot": 2, "gen": 1, "kind": "CREATE", "wall": 30, "name": "fit/side.txt", "stream": "$DATA", "content": "fit_side"}
 {"op_seq": 105, "slot": 2, "gen": 1, "kind": "CREATE_STREAM", "wall": 35, "name": "fit/side.txt", "stream": "tag", "content": "fit_tag"}
+{"op_seq": 106, "slot": 3, "gen": 1, "kind": "CREATE", "wall": 40, "name": "fit/half.txt", "stream": "$DATA", "content": "fit_half"}
+{"op_seq": 108, "slot": 3, "gen": 1, "kind": "RENAME_NEW", "wall": 45, "name": "fit/half_moved.txt", "stream": null, "content": null}
 {"op_seq": 65000, "slot": 1, "gen": 1, "kind": "DELETE", "wall": 50, "name": "fit/only_moved.txt", "stream": null, "content": null}
 {"op_seq": 65001, "slot": 1, "gen": 2, "kind": "CREATE", "wall": 70, "name": "fit/only_v2.txt", "stream": "$DATA", "content": "fit_v2"}

@@ -1,3 +1,4 @@
 {"slot": 1, "gen": 1, "names": [], "streams": {}, "si_mtime": 9000, "si_ctime": 9000, "si_btime": 10}
 {"slot": 1, "gen": 2, "names": ["fit/only_v2.txt"], "streams": {"$DATA": "fit_v2"}, "si_mtime": 80, "si_ctime": 80, "si_btime": 70}
 {"slot": 2, "gen": 1, "names": ["fit/side.txt"], "streams": {"$DATA": "fit_side", "tag": "fit_tag"}, "si_mtime": 60, "si_ctime": 60, "si_btime": 20}
+{"slot": 3, "gen": 1, "names": ["fit/half_moved.txt"], "streams": {"$DATA": "fit_half"}, "si_mtime": 55, "si_ctime": 55, "si_btime": 40}

@@ -39,9 +39,12 @@ when a wrap and a gap co-occur is wrong.
 
 A `RENAME_OLD` immediately followed in chronological order by a `RENAME_NEW` on the same
 `(slot, gen)` coalesces into a single `MOVE` event, including when that adjacent pair
-straddles the single oplog wrap seam. The MOVE uses the OLD name as `name_from`,
-the NEW name as `name_to`, and the journal `wall` from the NEW row. Emitting both rename
-fragments as separate timeline events is wrong.
+straddles the single oplog wrap seam. Coalesce is evaluated only after the full
+chronological merge of the rotated oplog with txnlog-only inserts. When the two halves
+of an adjacent pair come from different ledgers (one oplog row and one txnlog-only
+insert) they still coalesce into MOVE. Ledger origin must not block coalesce. The MOVE
+uses the OLD name as `name_from`, the NEW name as `name_to`, and the journal `wall`
+from the NEW row. Emitting both rename fragments as separate timeline events is wrong.
 
 A `RENAME_NEW` that is not preceded by a matching `RENAME_OLD` on the same incarnation is a
 standalone `RENAME_NEW` event.
@@ -56,9 +59,12 @@ journalled operations is wrong.
 If an incarnation has at least one journalled event, ownership names and streams come only
 from those journalled events (and the poison rules below). Object-table rows for that
 incarnation do not add unmatched names or streams. If an incarnation has zero journalled
-events, adopt its object-table names and streams that are not poisoned. There is no sweep
-into other incarnations and no stay-put of conflicting object-table path claims once poison
-applies.
+events (SI-only residual), adopt its object-table names and streams that are not already
+in `poisoned_paths`. No-revive applies to residual object-table adoption: never adopt a
+name that is already poisoned, even when that name appears only on an SI-only row.
+Streams on SI-only residuals are still adopted when not otherwise forbidden. There is no
+sweep into other incarnations and no stay-put of conflicting object-table path claims once
+poison applies.
 
 ## Streams and generation boundaries
 
@@ -82,13 +88,16 @@ later claims must not revive the path into any incarnation's `names` (no revive)
 ## Fit pack
 
 `/app/data/fit/alpha/` includes ledgers and `/app/data/fit/alpha/smoke_digests.json`.
-Those smoke digests are sha256 hashes of the JSON text produced by the shipped partial helper
-`/app/engine/starter.py` on the fit ledgers. They are a non-normative smoke check for that
-helper only. They are not graded normative expected timeline or ownership documents for work
-cases. Graded behavior is uniquely determined by composing the rules in this contract.
+Those smoke digests are sha256 hashes of the JSON text produced by the shipped almost-correct
+multi-module engine package (`/app/engine/`, orchestration via `pipeline.py`, thin `starter.py`
+re-export) on the fit ledgers. They are a non-normative smoke check for that helper only. They
+are not graded normative expected timeline or ownership documents for work cases. Graded
+behavior is uniquely determined by the end-state invariants in this contract together with the
+fit ledger topology (identity, schemas, serialization, ownership/poison/stream invariants,
+wrap oldest-first, MOVE coalesce adjacency, corpus_index schema).
 
-The starter helper is intentionally incomplete relative to this contract. Passing fit smoke
-does not imply a correct work-case reconstruction.
+The shipped engine package is almost-correct and fit-smoke-calibrated relative to this
+contract. Passing fit smoke does not imply a correct work-case reconstruction.
 
 ## Work packs
 

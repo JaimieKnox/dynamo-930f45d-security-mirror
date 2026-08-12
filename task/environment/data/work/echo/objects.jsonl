@@ -1,5 +1,17 @@
 {"slot": 50, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
-{"slot": 50, "gen": 2, "names": ["echo/live.bin"], "streams": {"$DATA": "echo_g2"}, "si_mtime": 900, "si_ctime": 900, "si_btime": 800}
-{"slot": 51, "gen": 1, "names": [], "streams": {"$DATA": "echo_a"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
-{"slot": 52, "gen": 1, "names": [], "streams": {"$DATA": "echo_b"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 50, "gen": 2, "names": ["echo/live.bin"], "streams": {"$DATA": "echo_g2b", "fresh": "echo_fresh2"}, "si_mtime": 2700, "si_ctime": 2700, "si_btime": 1900}
+{"slot": 51, "gen": 1, "names": [], "streams": {"$DATA": "echo_a3", "mark": "echo_mark2"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 52, "gen": 1, "names": [], "streams": {"$DATA": "echo_b2"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
 {"slot": 53, "gen": 1, "names": [], "streams": {"$DATA": "echo_c2"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 54, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 54, "gen": 2, "names": ["echo/pad2.txt"], "streams": {"$DATA": "echo_p2b"}, "si_mtime": 2610, "si_ctime": 2610, "si_btime": 2600}
+{"slot": 55, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 56, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 57, "gen": 1, "names": ["echo/mid.txt"], "streams": {"$DATA": "echo_midb", "side": "echo_side"}, "si_mtime": 1470, "si_ctime": 1470, "si_btime": 1450}
+{"slot": 58, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 59, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 60, "gen": 1, "names": ["echo/xfer_clean.txt"], "streams": {"$DATA": "echo_xdb"}, "si_mtime": 1540, "si_ctime": 1540, "si_btime": 1530}
+{"slot": 61, "gen": 1, "names": ["echo/tail1.txt"], "streams": {"$DATA": "echo_t1b", "z": "echo_z"}, "si_mtime": 2220, "si_ctime": 2220, "si_btime": 2200}
+{"slot": 62, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 62, "gen": 2, "names": ["echo/tail2b.txt"], "streams": {"$DATA": "echo_t2d"}, "si_mtime": 2410, "si_ctime": 2410, "si_btime": 2400}
+{"slot": 63, "gen": 1, "names": ["echo/ghost.txt", "echo/shared.dat"], "streams": {"$DATA": "echo_ghost", "aux": "echo_aux"}, "si_mtime": 50, "si_ctime": 50, "si_btime": 40}
