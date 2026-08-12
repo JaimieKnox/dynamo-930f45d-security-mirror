@@ -1,4 +1,4 @@
-"""Orchestration for the shipped incomplete vault engine (fit smoke scaffold)."""
+"""Orchestration for the shipped vault engine fit smoke scaffold."""
 
 from __future__ import annotations
 
@@ -87,7 +87,7 @@ def build_corpus_index(work_root: Path) -> dict[str, Any]:
 
 
 def fit_smoke(fit_dir: Path) -> dict[str, str]:
-    """Return sha256 digests of incomplete pipeline JSON text for a fit pack."""
+    """Return sha256 digests of pipeline JSON text for a fit pack."""
     timeline, ownership = reconstruct_case(fit_dir)
     tl_text = dumps_timeline(timeline)
     own_text = dumps_ownership(ownership)

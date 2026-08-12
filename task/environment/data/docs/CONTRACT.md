@@ -88,15 +88,15 @@ later claims must not revive the path into any incarnation's `names` (no revive)
 ## Fit pack
 
 `/app/data/fit/alpha/` includes ledgers and `/app/data/fit/alpha/smoke_digests.json`.
-Those smoke digests are sha256 hashes of the JSON text produced by the shipped almost-correct
+Those smoke digests are sha256 hashes of the JSON text produced by the shipped partial helper
 multi-module engine package (`/app/engine/`, orchestration via `pipeline.py`, thin `starter.py`
-re-export) on the fit ledgers. They are a non-normative smoke check for that helper only. They
-are not graded normative expected timeline or ownership documents for work cases. Graded
-behavior is uniquely determined by the end-state invariants in this contract together with the
-fit ledger topology (identity, schemas, serialization, ownership/poison/stream invariants,
+re-export) on the fit ledgers. They are a non-normative smoke check for that fit smoke scaffold
+only. They are not graded normative expected timeline or ownership documents for work cases.
+Graded behavior is uniquely determined by the end-state invariants in this contract together with
+the fit ledger topology (identity, schemas, serialization, ownership/poison/stream invariants,
 wrap oldest-first, MOVE coalesce adjacency, corpus_index schema).
 
-The shipped engine package is almost-correct and fit-smoke-calibrated relative to this
+The shipped engine package is a partial helper and fit-smoke-calibrated relative to this
 contract. Passing fit smoke does not imply a correct work-case reconstruction.
 
 ## Work packs

@@ -1,8 +1,4 @@
-"""Chronological merge for the shipped incomplete engine.
-
-Mostly correct oldest-first circular rotation with txnlog-only inserts.
-Tags each row with `_src` so downstream coalesce can mis-handle cross-ledger pairs.
-"""
+"""Chronological merge helper used by the fit smoke pipeline."""
 
 from __future__ import annotations
 

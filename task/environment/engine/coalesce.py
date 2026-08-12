@@ -1,8 +1,4 @@
-"""Rename coalesce for the shipped incomplete engine.
-
-Silent wrong: only coalesce when both halves are tagged `_src == \"oplog\"`.
-Cross-ledger adjacent pairs (txnlog OLD + oplog NEW, or the reverse) stay as fragments.
-"""
+"""Oplog coalescing helper used by the fit smoke pipeline."""
 
 from __future__ import annotations
 
@@ -10,7 +6,7 @@ from typing import Any
 
 
 def coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Coalesce RENAME_OLD+RENAME_NEW only when both halves originated in the oplog."""
+    """Coalesce adjacent RENAME_OLD+RENAME_NEW pairs into MOVE events."""
     out: list[dict[str, Any]] = []
     i = 0
     while i < len(ops):

@@ -1,9 +1,4 @@
-"""Corpus index helpers for the shipped incomplete engine.
-
-Silent wrongs applied by aggregate_case_stats:
-- incarnation_count counts only incarnations that appear in the timeline (skips SI-only)
-- move_event_count counts MOVE kinds from the incomplete timeline (misses cross-ledger MOVE)
-"""
+"""Corpus index helpers used by the fit smoke pipeline."""
 
 from __future__ import annotations
 

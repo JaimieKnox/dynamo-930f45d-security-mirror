@@ -1,10 +1,4 @@
-"""Ownership reconstruction for the shipped incomplete engine.
-
-Silent wrongs:
-- last-writer path map with no poison / no-revive
-- stream inheritance across gens in the same slot
-- SI-only residuals adopt object-table names even when those paths would be poisoned
-"""
+"""Ownership reconstruction helper used by the fit smoke pipeline."""
 
 from __future__ import annotations
 
