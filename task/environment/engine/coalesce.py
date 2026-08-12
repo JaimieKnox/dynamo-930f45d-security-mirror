@@ -1,45 +1,29 @@
-"""Rename coalesce for the shipped almost-correct engine.
+"""Rename coalesce for the shipped incomplete engine.
 
-Consumes adjacent RENAME_OLD+RENAME_NEW in the merged stream, and would also
-consume shared.pending_rename_olds when present. Pipeline clears that buffer
-before this stage runs, so cross-ledger halves never meet.
+Silent wrong: only coalesce when both halves are tagged `_src == \"oplog\"`.
+Cross-ledger adjacent pairs (txnlog OLD + oplog NEW, or the reverse) stay as fragments.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from . import shared
-
 
 def coalesce(ops: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    work = list(ops)
-    if shared.pending_rename_olds:
-        spliced: list[dict[str, Any]] = []
-        pend = list(shared.pending_rename_olds)
-        for row in work:
-            if (
-                pend
-                and row.get("kind") == "RENAME_NEW"
-                and int(pend[0]["slot"]) == int(row["slot"])
-                and int(pend[0]["gen"]) == int(row["gen"])
-            ):
-                spliced.append(pend.pop(0))
-            spliced.append(row)
-        work = spliced
-        shared.pending_rename_olds[:] = pend
-
+    """Coalesce RENAME_OLD+RENAME_NEW only when both halves originated in the oplog."""
     out: list[dict[str, Any]] = []
     i = 0
-    while i < len(work):
-        row = work[i]
-        nxt = work[i + 1] if i + 1 < len(work) else None
+    while i < len(ops):
+        row = ops[i]
+        nxt = ops[i + 1] if i + 1 < len(ops) else None
         if (
             nxt is not None
             and row.get("kind") == "RENAME_OLD"
             and nxt.get("kind") == "RENAME_NEW"
             and int(nxt["slot"]) == int(row["slot"])
             and int(nxt["gen"]) == int(row["gen"])
+            and row.get("_src") == "oplog"
+            and nxt.get("_src") == "oplog"
         ):
             out.append(
                 {

@@ -1,16 +1,14 @@
-"""Ownership reconstruction for the shipped almost-correct engine.
+"""Ownership reconstruction for the shipped incomplete engine.
 
-Silent wrongs (shared-state / long-horizon):
-streams accumulate in shared.streams_by_slot keyed by slot, not (slot, gen);
-poison lives in shared.poison_paths and is cleared between journal and SI stages;
-last-writer path map with no sticky poison during the journal pass.
+Silent wrongs:
+- last-writer path map with no poison / no-revive
+- stream inheritance across gens in the same slot
+- SI-only residuals adopt object-table names even when those paths would be poisoned
 """
 
 from __future__ import annotations
 
 from typing import Any
-
-from . import shared
 
 
 def _inc_id(slot: int, gen: int) -> str:
@@ -21,23 +19,17 @@ def build_ownership(
     timeline: list[dict[str, Any]], objects: list[dict[str, Any]]
 ) -> dict[str, Any]:
     names: dict[str, set[str]] = {}
+    streams: dict[str, dict[str, str]] = {}
     path_owner: dict[str, str] = {}
-    shared.streams_by_slot.clear()
-    shared.poison_paths.clear()
 
     def ensure(inc: str) -> None:
         names.setdefault(inc, set())
-
-    def streams_for(slot: int) -> dict[str, str]:
-        return shared.streams_by_slot.setdefault(slot, {})
+        streams.setdefault(inc, {})
 
     for ev in timeline:
-        slot = int(ev["slot"])
-        gen = int(ev["gen"])
-        inc = _inc_id(slot, gen)
+        inc = _inc_id(ev["slot"], ev["gen"])
         ensure(inc)
         kind = ev["kind"]
-        bucket = streams_for(slot)
 
         def claim(path: str | None) -> None:
             if not path:
@@ -45,7 +37,6 @@ def build_ownership(
             prev = path_owner.get(path)
             if prev is not None and prev != inc:
                 names[prev].discard(path)
-                shared.poison_paths.add(path)
             path_owner[path] = inc
             names[inc].add(path)
 
@@ -61,7 +52,7 @@ def build_ownership(
             stream = ev.get("stream") or "$DATA"
             content = ev.get("content")
             if content is not None:
-                bucket[stream] = content
+                streams[inc][stream] = content
         elif kind == "LINK":
             claim(ev.get("name"))
         elif kind == "MOVE":
@@ -77,51 +68,50 @@ def build_ownership(
             stream = ev.get("stream") or "$DATA"
             content = ev.get("content")
             if content is not None:
-                bucket[stream] = content
+                streams[inc][stream] = content
         elif kind == "CREATE_STREAM":
             stream = ev.get("stream")
             content = ev.get("content")
             if stream and content is not None:
-                bucket[stream] = content
+                streams[inc][stream] = content
         elif kind == "DELETE_STREAM":
             stream = ev.get("stream")
             if stream:
-                bucket.pop(stream, None)
+                streams[inc].pop(stream, None)
 
-    shared.poison_paths.clear()
+    by_slot: dict[int, list[str]] = {}
+    for inc in list(streams.keys()):
+        slot = int(inc.split(":")[0])
+        by_slot.setdefault(slot, []).append(inc)
+    for _slot, incs in by_slot.items():
+        incs_sorted = sorted(incs, key=lambda x: int(x.split(":")[1]))
+        carried: dict[str, str] = {}
+        for inc in incs_sorted:
+            carried.update(streams.get(inc, {}))
+            streams[inc] = dict(carried)
 
     journalled = {_inc_id(e["slot"], e["gen"]) for e in timeline}
-    all_incs = set(journalled)
     for obj in objects:
-        all_incs.add(_inc_id(int(obj["slot"]), int(obj["gen"])))
-
-    for obj in objects:
-        slot = int(obj["slot"])
-        gen = int(obj["gen"])
-        inc = _inc_id(slot, gen)
+        inc = _inc_id(int(obj["slot"]), int(obj["gen"]))
         if inc in journalled:
             ensure(inc)
             continue
         ensure(inc)
-        bucket = streams_for(slot)
         for n in obj.get("names") or []:
             names[inc].add(n)
         for sname, digest in (obj.get("streams") or {}).items():
-            bucket[sname] = digest
+            streams[inc][sname] = digest
 
     incarnations = []
-    for inc in sorted(all_incs, key=lambda x: (int(x.split(":")[0]), int(x.split(":")[1]))):
-        ensure(inc)
+    for inc in sorted(names.keys(), key=lambda x: (int(x.split(":")[0]), int(x.split(":")[1]))):
         slot_s, gen_s = inc.split(":")
-        slot_i = int(slot_s)
-        streams = dict(shared.streams_by_slot.get(slot_i, {}))
         incarnations.append(
             {
                 "id": inc,
-                "slot": slot_i,
+                "slot": int(slot_s),
                 "gen": int(gen_s),
                 "names": sorted(names[inc]),
-                "streams": {k: streams[k] for k in sorted(streams.keys())},
+                "streams": {k: streams[inc][k] for k in sorted(streams.get(inc, {}).keys())},
             }
         )
 

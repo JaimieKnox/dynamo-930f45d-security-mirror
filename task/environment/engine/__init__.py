@@ -1,4 +1,4 @@
-"""Shipped almost-correct vault reconstruction package (fit smoke scaffold)."""
+"""Shipped incomplete vault reconstruction package (fit smoke scaffold)."""
 
 from .pipeline import (
     build_corpus_index,

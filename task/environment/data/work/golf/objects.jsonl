@@ -7,6 +7,3 @@
 {"slot": 74, "gen": 2, "names": ["golf/pad2.txt"], "streams": {"$DATA": "golf_p2b", "aux": "golf_aux"}, "si_mtime": 2000, "si_ctime": 2000, "si_btime": 1900}
 {"slot": 75, "gen": 1, "names": ["golf/orphan.txt"], "streams": {"$DATA": "golf_late2"}, "si_mtime": 2200, "si_ctime": 2200, "si_btime": 1700}
 {"slot": 76, "gen": 1, "names": ["golf/ghost.txt", "golf/shared.bin"], "streams": {"$DATA": "golf_ghost", "side": "golf_side"}, "si_mtime": 50, "si_ctime": 50, "si_btime": 40}
-{"slot": 77, "gen": 1, "names": ["golf/extra.txt"], "streams": {"$DATA": "golf_ex2"}, "si_mtime": 2210, "si_ctime": 2210, "si_btime": 2200}
-{"slot": 78, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
-{"slot": 79, "gen": 1, "names": ["golf/clean_a.txt"], "streams": {"$DATA": "golf_cb2"}, "si_mtime": 2430, "si_ctime": 2430, "si_btime": 2420}

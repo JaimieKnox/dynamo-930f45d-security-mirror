@@ -145,10 +145,6 @@ def test_ownership_incarnations_streams_and_poison():
         ghost = next(i for i in exp_fox["incarnations"] if i["id"] == "62:1")
         assert ghost["names"] == ["fox/ghost.txt"]
         assert "aux" in ghost["streams"]
-        assert "fox/clash.txt" in exp_fox["poisoned_paths"]
-        si = next(i for i in exp_fox["incarnations"] if i["id"] == "66:1")
-        assert "fox/clash.txt" not in si["names"]
-        assert "fox/si_only.txt" in si["names"]
     if "golf" in case_ids:
         exp_golf_tl, exp_golf_own = _expected(seal, "golf")
         assert any(

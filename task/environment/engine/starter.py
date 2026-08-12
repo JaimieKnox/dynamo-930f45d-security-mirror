@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Thin re-export of the almost-correct engine pipeline for backward paths."""
+"""Thin re-export of the incomplete engine pipeline for backward paths."""
 
 from __future__ import annotations
 

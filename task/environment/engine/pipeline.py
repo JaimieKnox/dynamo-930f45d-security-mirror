@@ -1,4 +1,4 @@
-"""Orchestration for the shipped almost-correct vault engine (fit smoke scaffold)."""
+"""Orchestration for the shipped incomplete vault engine (fit smoke scaffold)."""
 
 from __future__ import annotations
 
@@ -7,12 +7,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from . import shared
+from .chrono import chronological_ops
 from .coalesce import coalesce
-from .corpus import accumulate_case, finalize_corpus_index
-from .gapfill import gapfill
+from .index import build_corpus_index_from_cases
 from .ownership import build_ownership
-from .rotate import rotate_oplog
 
 
 def _load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -48,15 +46,7 @@ def reconstruct_case(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, An
     oplog = _load_jsonl(case_dir / "oplog.jsonl")
     txnlog = _load_jsonl(case_dir / "txnlog.jsonl")
 
-    shared.reset_case_buffers()
-    rotated, start = rotate_oplog(oplog)
-    ordered = gapfill(rotated, txnlog, start)
-
-    # Shared-state defect: clear coalesce half-buffer across the gapfill boundary
-    # before coalesce runs. Fit smoke stays stable on short packs; held packs lose
-    # cross-ledger MOVE pairing.
-    shared.pending_rename_olds.clear()
-
+    ordered = chronological_ops(oplog, txnlog)
     events_raw = coalesce(ordered)
 
     timeline: list[dict[str, Any]] = []
@@ -92,15 +82,12 @@ def write_case_outputs(case_dir: Path, out_dir: Path) -> None:
 
 def build_corpus_index(work_root: Path) -> dict[str, Any]:
     case_ids = sorted(p.name for p in work_root.iterdir() if p.is_dir())
-    for cid in case_ids:
-        timeline, ownership = reconstruct_case(work_root / cid)
-        accumulate_case(cid, timeline, ownership)
-        accumulate_case(cid, timeline, ownership)
-    return finalize_corpus_index(case_ids)
+    case_results = {cid: reconstruct_case(work_root / cid) for cid in case_ids}
+    return build_corpus_index_from_cases(case_ids, case_results)
 
 
 def fit_smoke(fit_dir: Path) -> dict[str, str]:
-    """Return sha256 digests of almost-correct pipeline JSON text for a fit pack."""
+    """Return sha256 digests of incomplete pipeline JSON text for a fit pack."""
     timeline, ownership = reconstruct_case(fit_dir)
     tl_text = dumps_timeline(timeline)
     own_text = dumps_ownership(ownership)
