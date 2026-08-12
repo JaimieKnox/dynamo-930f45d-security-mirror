@@ -1,0 +1,18 @@
+{"slot": 100, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 100, "gen": 2, "names": ["juliet/root2.txt"], "streams": {"$DATA": "juliet_r2c", "fresh": "juliet_fresh"}, "si_mtime": 2710, "si_ctime": 2710, "si_btime": 1700}
+{"slot": 101, "gen": 1, "names": [], "streams": {"$DATA": "juliet_a2", "mark": "juliet_mark"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 102, "gen": 1, "names": ["juliet/carrier_v2.txt", "juliet/carrier_link.txt"], "streams": {"$DATA": "juliet_car4", "note": "juliet_note"}, "si_mtime": 2700, "si_ctime": 2700, "si_btime": 1300}
+{"slot": 103, "gen": 1, "names": ["juliet/other.txt"], "streams": {"$DATA": "juliet_o2"}, "si_mtime": 2320, "si_ctime": 2320, "si_btime": 1500}
+{"slot": 104, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 104, "gen": 2, "names": ["juliet/pad2.txt"], "streams": {"$DATA": "juliet_p2d"}, "si_mtime": 2610, "si_ctime": 2610, "si_btime": 1910}
+{"slot": 105, "gen": 1, "names": ["juliet/noise1.txt"], "streams": {"$DATA": "juliet_n1e"}, "si_mtime": 2310, "si_ctime": 2310, "si_btime": 1200}
+{"slot": 106, "gen": 1, "names": ["juliet/orphan.txt"], "streams": {"$DATA": "juliet_late"}, "si_mtime": 1810, "si_ctime": 1810, "si_btime": 1800}
+{"slot": 107, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 108, "gen": 1, "names": ["juliet/clean_a.txt"], "streams": {"$DATA": "juliet_cb2"}, "si_mtime": 2130, "si_ctime": 2130, "si_btime": 2120}
+{"slot": 109, "gen": 1, "names": ["juliet/ghost.txt", "juliet/shared.dat"], "streams": {"$DATA": "juliet_ghost", "side": "juliet_side"}, "si_mtime": 50, "si_ctime": 50, "si_btime": 40}
+{"slot": 110, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 111, "gen": 1, "names": ["juliet/trail.txt", "juliet/trail_link.txt"], "streams": {"$DATA": "juliet_trail3", "side": "juliet_trail_side"}, "si_mtime": 2440, "si_ctime": 2440, "si_btime": 2400}
+{"slot": 112, "gen": 1, "names": [], "streams": {}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 113, "gen": 1, "names": ["juliet/cycle.txt"], "streams": {"$DATA": "juliet_cy3"}, "si_mtime": 2530, "si_ctime": 2530, "si_btime": 2520}
+{"slot": 114, "gen": 1, "names": ["juliet/extra.txt", "juliet/extra_link.txt"], "streams": {"$DATA": "juliet_ex3"}, "si_mtime": 2920, "si_ctime": 2920, "si_btime": 2800}
+{"slot": 115, "gen": 1, "names": ["juliet/tail.txt"], "streams": {"$DATA": "juliet_tail2"}, "si_mtime": 3010, "si_ctime": 3010, "si_btime": 3000}

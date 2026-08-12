@@ -191,6 +191,12 @@ def test_ownership_incarnations_streams_and_poison():
             exp_golf_tl[i]["chain"] != wrong_move_wall[i]["chain"]
             for i in range(min(len(exp_golf_tl), len(wrong_move_wall)))
         ), "NEW-wall MOVE rival must break chain integrity"
+        wrong_genesis = seal["residue"]["golf_wrong_chain_genesis_timeline"]
+        assert wrong_genesis != exp_golf_tl
+        assert any(
+            exp_golf_tl[i]["chain"] != wrong_genesis[i]["chain"]
+            for i in range(min(len(exp_golf_tl), len(wrong_genesis)))
+        ), "wrong chain genesis rival must diverge"
 
     if "hotel" in case_ids:
         exp_hotel_tl, exp_hotel_own = _expected(seal, "hotel")
@@ -213,6 +219,40 @@ def test_ownership_incarnations_streams_and_poison():
         assert "meta" not in root2["streams"]
         assert len(exp_hotel_tl) >= 45
 
+    if "juliet" in case_ids:
+        exp_juliet_tl, exp_juliet_own = _expected(seal, "juliet")
+        juliet_move = next(
+            e
+            for e in exp_juliet_tl
+            if e["kind"] == "MOVE"
+            and e["slot"] == 102
+            and e["gen"] == 1
+            and e.get("name_from") == "juliet/carrier.txt"
+            and e.get("name_to") == "juliet/carrier_v2.txt"
+        )
+        assert juliet_move["time"] == 1410
+        assert juliet_move["op_seq"] == 65525
+        assert "juliet/shared.dat" in exp_juliet_own["poisoned_paths"]
+        ghost = next(i for i in exp_juliet_own["incarnations"] if i["id"] == "109:1")
+        assert "juliet/shared.dat" not in ghost["names"]
+        assert "juliet/ghost.txt" in ghost["names"]
+        root2 = next(i for i in exp_juliet_own["incarnations"] if i["id"] == "100:2")
+        assert "meta" not in root2["streams"]
+        assert any(e["kind"] == "RENAME_NEW" for e in exp_juliet_tl)
+        assert len(exp_juliet_tl) >= 40
+        wrong_move_wall = seal["residue"]["juliet_wrong_move_uses_new_wall_timeline"]
+        assert wrong_move_wall != exp_juliet_tl
+        wrong_move = next(
+            e
+            for e in wrong_move_wall
+            if e["kind"] == "MOVE" and e.get("name_from") == "juliet/carrier.txt"
+        )
+        assert wrong_move["time"] != juliet_move["time"]
+        wrong_genesis = seal["residue"]["juliet_wrong_chain_genesis_timeline"]
+        assert wrong_genesis != exp_juliet_tl
+        wrong_si = seal["residue"]["juliet_wrong_si_adopts_poisoned_ownership"]
+        assert wrong_si != exp_juliet_own
+
 
 def test_corpus_index_schema_and_byte_contract():
     """Success criterion 6: corpus_index.json matches schema and sealed aggregates."""
@@ -230,6 +270,7 @@ def test_corpus_index_schema_and_byte_contract():
     assert data["case_ids"] == list(_case_ids(seal))
     assert "golf" in data["case_ids"]
     assert "hotel" in data["case_ids"]
+    assert "juliet" in data["case_ids"]
     assert data["poisoned_paths"] == sorted(data["poisoned_paths"])
     assert type(data["incarnation_count"]) is int
     assert type(data["move_event_count"]) is int
@@ -241,5 +282,6 @@ def test_corpus_index_schema_and_byte_contract():
         exp_tl, _ = _expected(seal, cid)
         assert tip == exp_tl[-1]["chain"]
     assert "hotel" in data["chain_tips"]
+    assert "juliet" in data["chain_tips"]
     assert raw == seal["corpus_index_text"]
     assert data == seal["corpus_index"]

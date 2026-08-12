@@ -22,7 +22,7 @@ strings), `streams` (object map of stream name to content hash), `si_mtime`, `si
 `txnlog.jsonl` is a short transactional gap log with the same field set as oplog rows plus
 `txn_id`. It may contain operations that are missing from the oplog window.
 
-## Chronological order
+## Chronological orde
 
 Oplog `op_seq` values increase until they wrap back to a low value. There is at most one wrap
 seam in a case. Chronological order is the unique circular rotation that starts at the oldest
@@ -38,21 +38,27 @@ integer `op_seq` order alone does not define chronology when a wrap is present.
 ## Rename coalesce
 
 A `RENAME_OLD` immediately followed in chronological order by a `RENAME_NEW` on the same
-`(slot, gen)` coalesces into a single `MOVE` event, including when that adjacent pair
+`(slot, gen)` coalesces into a single `MOVE` event, including when that adjacent pai
 straddles the single oplog wrap seam. Coalesce is evaluated only after the full
 chronological merge of the rotated oplog with txnlog-only inserts. When the two halves
 of an adjacent pair come from different ledgers (one oplog row and one txnlog-only
-insert) they still coalesce into MOVE. Ledger origin must not block coalesce.
+insert) they still coalesce into MOVE.
 
-Coalesced MOVE field values for `time`, `op_seq`, and `event_id`, and the timeline `chain`
-hashes, follow the legacy vault exporter behavior demonstrated by normative fit expected
-timelines such as `/app/data/fit/alpha/expected/timeline.json`,
-`/app/data/fit/bravo/expected/timeline.json`, and `/app/data/fit/charlie/expected/timeline.json`.
-Every pack has `/app/data/fit/<id>/expected/timeline.json` and
-`/app/data/fit/<id>/expected/ownership.json`. The rename halves still supply `name_from`
-(OLD name) and `name_to` (NEW name). Coalesced MOVE `time` uses the RENAME_OLD wall.
+The rename halves still supply `name_from` (OLD name) and `name_to` (NEW name). The coalesced
+MOVE replaces both rename fragments in the timeline.
 
-The coalesced MOVE replaces both rename fragments in the timeline.
+Exporter field choices for coalesced MOVE (`time`, `op_seq`, `event_id`), timeline sort keys,
+and per-event `chain` construction are defined by `/app/data/docs/exporter_profile.json`
+together with the normative fit expected timelines such as
+`/app/data/fit/alpha/expected/timeline.json`,
+`/app/data/fit/bravo/expected/timeline.json`, and
+`/app/data/fit/charlie/expected/timeline.json`. Every pack has
+`/app/data/fit/<id>/expected/timeline.json` and
+`/app/data/fit/<id>/expected/ownership.json`. Do not invent a different exporter mapping.
+
+Profile half tokens: `rename_src` means the `RENAME_OLD` half and `rename_dst` means the
+`RENAME_NEW` half. Chain templates substitute the named placeholders (`genesis`, `event_id`,
+`time`, `prev`) from `/app/data/docs/exporter_profile.json`.
 
 A `RENAME_NEW` that is not preceded by a matching `RENAME_OLD` on the same incarnation is a
 standalone `RENAME_NEW` event.
@@ -102,32 +108,32 @@ and `/app/data/fit/charlie/expected/ownership.json`. Every pack has
 `/app/data/fit/<id>/expected/timeline.json` and `/app/data/fit/<id>/expected/ownership.json`.
 
 Those expected documents are normative illustrations of this contract on the fit ledgers.
-Induce closed rules from this contract together with every fit pack's expected documents.
-Exporter field choices for coalesced MOVE (`time`, `op_seq`, `event_id`), timeline sort order,
-and the per-event `chain` field are pinned by those expected timelines. Individual packs may
-omit some rule branches. Collectively the fit expecteds uniquely determine the closed rules
-needed for graded work cases.
+Induce closed rules from this contract, `/app/data/docs/exporter_profile.json`, and every fit
+pack's expected documents. Exporter field choices for coalesced MOVE (`time`, `op_seq`,
+`event_id`), timeline sort order, and the per-event `chain` field are pinned by the exporte
+profile together with those expected timelines. Individual packs may omit some rule branches.
+Collectively the fit expecteds uniquely determine the closed rules needed for graded work cases.
 
 Graded work-case behavior is uniquely determined by the end-state invariants in this contract
-together with the fit expected illustrations (identity, schemas, serialization, ownership /
-poison / stream invariants, wrap oldest-first, MOVE coalesce adjacency and legacy exporter
-fields including OLD wall for MOVE `time`, timeline sort order, chain hashes, corpus_index
-schema including `name_claim_count` and `chain_tips`).
+together with the exporter profile and the fit expected illustrations (identity, schemas,
+serialization, ownership / poison / stream invariants, wrap oldest-first, MOVE coalesce
+adjacency including cross-ledger pairs, exporter MOVE field mapping, timeline sort order,
+chain hashes, corpus_index schema including `name_claim_count` and `chain_tips`).
 
 ## Work packs
 
-Process every case directory under `/app/data/work/`. Write outputs under
+Process every case directory under `/app/data/work/`. Write outputs unde
 `/app/output/<case_id>/` where `<case_id>` is the directory name.
 
 Also write `/app/output/corpus_index.json` aggregating every work case (see Output schemas).
 
 ## Output schemas
 
-`timeline.json` is a JSON array of event objects. Timeline sort order matches the fit expected
-timeline ordering: ascending `time`, then ascending `event_id`. Each event has:
+`timeline.json` is a JSON array of event objects. Timeline sort order follows
+`/app/data/docs/exporter_profile.json` together with the fit expected timelines. Each event has:
 
-- `event_id` (string): `"{slot}:{gen}:{op_seq}:{kind}"` for non-MOVE events, and
-  `"{slot}:{gen}:{op_seq_new}:MOVE"` for coalesced MOVE (use the NEW row's `op_seq`)
+- `event_id` (string): `"{slot}:{gen}:{op_seq}:{kind}"` for non-MOVE events. For coalesced
+  MOVE, `event_id` uses the exporter-selected MOVE `op_seq` from the profile with kind `MOVE`
 - `slot` (integer)
 - `gen` (integer)
 - `kind` (string)
@@ -138,10 +144,8 @@ timeline ordering: ascending `time`, then ascending `event_id`. Each event has:
 - `name_to` (string or null): set only for MOVE
 - `stream` (string or null)
 - `content` (string or null)
-- `chain` (string): long-horizon integrity hash over the sorted timeline. For the first event
-  in sorted order, `chain = sha256(f"VAULT1|{event_id}|{time}".encode()).hexdigest()[:16]`.
-  For each later event, `chain = sha256(f"{prev_chain}|{event_id}|{time}".encode()).hexdigest()[:16]`
-  where `prev_chain` is the prior event's `chain`.
+- `chain` (string): long-horizon integrity hash over the sorted timeline, constructed pe
+  `/app/data/docs/exporter_profile.json` and matching the fit expected timelines
 
 Serialize with UTF-8, `ensure_ascii` false, 2-space indent, trailing newline, and object key
 order exactly as listed above for each event (`chain` is the last key).

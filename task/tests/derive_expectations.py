@@ -262,6 +262,26 @@ def wrong_si_adopts_poisoned(case_dir: Path) -> tuple[list[dict[str, Any]], dict
     return timeline, own
 
 
+def wrong_chain_genesis(case_dir: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Rival: chain genesis token differs from the exporter profile."""
+    import hashlib
+
+    timeline, ownership = reconstruct_case(case_dir)
+    tl = copy.deepcopy(timeline)
+    prev: str | None = None
+    for ev in tl:
+        eid = str(ev["event_id"])
+        t = int(ev["time"])
+        if prev is None:
+            raw = f"VAULT0|{eid}|{t}"
+        else:
+            raw = f"{prev}|{eid}|{t}"
+        digest = hashlib.sha256(raw.encode()).hexdigest()[:16]
+        ev["chain"] = digest
+        prev = digest
+    return tl, ownership
+
+
 def main() -> int:
     SEAL_PATH.parent.mkdir(parents=True, exist_ok=True)
     cases_list = discover_cases()
@@ -293,16 +313,29 @@ def main() -> int:
         wrong_golf_half, _ = wrong_no_half_pair_coalesce(TESTS_IN / "golf")
         _, wrong_golf_si = wrong_si_adopts_poisoned(TESTS_IN / "golf")
         wrong_golf_move_wall, _ = wrong_move_uses_new_wall(TESTS_IN / "golf")
+        wrong_golf_genesis, _ = wrong_chain_genesis(TESTS_IN / "golf")
         residue.update(
             {
                 "golf_wrong_no_half_pair_coalesce_timeline": wrong_golf_half,
                 "golf_wrong_si_adopts_poisoned_ownership": wrong_golf_si,
                 "golf_wrong_move_uses_new_wall_timeline": wrong_golf_move_wall,
+                "golf_wrong_chain_genesis_timeline": wrong_golf_genesis,
             }
         )
     if "echo" in cases_list and "echo_wrong_move_uses_new_wall_timeline" not in residue:
         wrong_echo_move_wall, _ = wrong_move_uses_new_wall(TESTS_IN / "echo")
         residue["echo_wrong_move_uses_new_wall_timeline"] = wrong_echo_move_wall
+    if "juliet" in cases_list:
+        wrong_juliet_move_wall, _ = wrong_move_uses_new_wall(TESTS_IN / "juliet")
+        wrong_juliet_genesis, _ = wrong_chain_genesis(TESTS_IN / "juliet")
+        _, wrong_juliet_si = wrong_si_adopts_poisoned(TESTS_IN / "juliet")
+        residue.update(
+            {
+                "juliet_wrong_move_uses_new_wall_timeline": wrong_juliet_move_wall,
+                "juliet_wrong_chain_genesis_timeline": wrong_juliet_genesis,
+                "juliet_wrong_si_adopts_poisoned_ownership": wrong_juliet_si,
+            }
+        )
 
     corpus_index = build_corpus_index(TESTS_IN)
     payload = {

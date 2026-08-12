@@ -1,0 +1,2 @@
+{"op_seq": 65523, "slot": 102, "gen": 1, "kind": "WRITE", "wall": 1400, "name": "juliet/carrier.txt", "stream": "$DATA", "content": "juliet_car3", "txn_id": 1}
+{"op_seq": 65524, "slot": 102, "gen": 1, "kind": "RENAME_OLD", "wall": 1410, "name": "juliet/carrier.txt", "stream": null, "content": null, "txn_id": 2}

@@ -4,7 +4,7 @@
 # Phase B grades agent outputs with no oracle import (R181).
 set -u
 
-mkdir -p /logs/verifier
+mkdir -p /logs/verifie
 reward=/logs/verifier/reward.txt
 
 # Isolate pytest from agent-writable trees (R193 / R210).

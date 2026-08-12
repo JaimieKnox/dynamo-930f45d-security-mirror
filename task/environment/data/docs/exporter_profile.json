@@ -1,0 +1,12 @@
+{
+  "move_time_half": "rename_src",
+  "move_op_seq_half": "rename_dst",
+  "timeline_order": ["time", "event_id"],
+  "chain": {
+    "genesis_token": "VAULT1",
+    "hex_prefix_len": 16,
+    "first_template": "{genesis}|{event_id}|{time}",
+    "next_template": "{prev}|{event_id}|{time}",
+    "hash": "sha256"
+  }
+}
