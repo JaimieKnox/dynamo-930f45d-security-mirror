@@ -1,0 +1,69 @@
+{
+  "incarnations": [
+    {
+      "id": "20:1",
+      "slot": 20,
+      "gen": 1,
+      "names": [
+        "bravo/keep.txt"
+      ],
+      "streams": {
+        "$DATA": "b_keep2"
+      }
+    },
+    {
+      "id": "21:1",
+      "slot": 21,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "b_a2",
+        "mark": "b_mark"
+      }
+    },
+    {
+      "id": "22:1",
+      "slot": 22,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "b_b"
+      }
+    },
+    {
+      "id": "23:1",
+      "slot": 23,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "b_tmp"
+      }
+    },
+    {
+      "id": "24:1",
+      "slot": 24,
+      "gen": 1,
+      "names": [
+        "bravo/tmp.txt"
+      ],
+      "streams": {
+        "$DATA": "b_tmp2"
+      }
+    },
+    {
+      "id": "25:1",
+      "slot": 25,
+      "gen": 1,
+      "names": [
+        "bravo/ghost.txt"
+      ],
+      "streams": {
+        "$DATA": "b_ghost",
+        "side": "b_side"
+      }
+    }
+  ],
+  "poisoned_paths": [
+    "bravo/shared.dat"
+  ]
+}

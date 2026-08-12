@@ -3,7 +3,6 @@ FROM public.ecr.aws/docker/library/python:3.13-slim-bookworm@sha256:01f42367a0a9
 RUN pip install --no-cache-dir --break-system-packages pytest==8.4.1 pytest-json-ctrf==0.3.5
 
 WORKDIR /app
-RUN mkdir -p /app/output /app/data /app/engine
+RUN mkdir -p /app/output /app/data
 
 COPY data /app/data
-COPY engine /app/engine

@@ -3,6 +3,11 @@
 Reconstruct host artifact timelines from a synthetic forensic vault. Each case directory
 contains three JSONL ledgers: `objects.jsonl`, `oplog.jsonl`, and `txnlog.jsonl`.
 
+Disclosed fit packs under `/app/data/fit/<id>/` ship the same three ledgers plus normative
+`expected/timeline.json` and `expected/ownership.json`. Graded behavior is uniquely fixed by
+the end-state invariants in this contract together with those fit expecteds. Induce closed
+rules from both, then apply them to every work case under `/app/data/work/`.
+
 ## Identity
 
 Every object incarnation is the pair `(slot, gen)`. A slot number alone is never an identity.
@@ -22,48 +27,44 @@ strings), `streams` (object map of stream name to content hash), `si_mtime`, `si
 `txnlog.jsonl` is a short transactional gap log with the same field set as oplog rows plus
 `txn_id`. It may contain operations that are missing from the oplog window.
 
-## Chronological order
+## Chronology
 
-Oplog `op_seq` values increase until they wrap back to a low value. There is at most one wrap
-seam in a case. Chronological order is the unique circular rotation that starts at the oldest
-oplog event. Oldest means the minimum `(wall, op_seq, slot, gen)` among oplog rows. Later events
-follow by ascending `(op_seq - start) mod 65536`.
-
-When the oplog both wraps and is missing one or more operations that appear in `txnlog.jsonl`,
-those txnlog-only operations are inserted into that same rotated order by their `op_seq`
-distance from `start`. Journal evidence from txnlog is authoritative for placing those missing
-operations. Chronology is the rotated oldest-first sequence with those inserts applied. Raw
-integer `op_seq` order alone does not define chronology when a wrap is present.
+The oplog window is circular and has at most one wrap seam. Chronological order is the unique
+oldest-first rotation of that window. Oldest means the minimum `(wall, op_seq, slot, gen)`
+among oplog rows. Later events follow that rotation. Txnlog-only operations (rows whose
+`op_seq` is absent from the oplog) belong in that same chronological sequence by their
+distance from the rotation start. Raw ascending `op_seq` alone is not chronology when a wrap
+is present. Fit expected timelines show the resulting order, including wrap and gap-fill cases.
 
 ## Rename coalesce
 
-A `RENAME_OLD` immediately followed in chronological order by a `RENAME_NEW` on the same
-`(slot, gen)` coalesces into a single `MOVE` event, including when that adjacent pair
-straddles the single oplog wrap seam. Coalesce is evaluated only after the full
-chronological merge of the rotated oplog with txnlog-only inserts. When the two halves
-of an adjacent pair come from different ledgers (one oplog row and one txnlog-only
-insert) they still coalesce into MOVE. Ledger origin must not block coalesce. The MOVE
-uses the OLD name as `name_from`, the NEW name as `name_to`, and the journal `wall`
-from the NEW row. The coalesced MOVE replaces both rename fragments in the timeline.
+Coalesce is evaluated only after the full chronological merge of the rotated oplog with
+txnlog-only inserts. A `RENAME_OLD` immediately followed in that merged sequence by a
+`RENAME_NEW` on the same `(slot, gen)` becomes a single `MOVE`, including when the adjacent
+halves come from different ledgers (one oplog row and one txnlog-only insert) and including
+when the pair straddles the wrap seam. Ledger origin must not block coalesce.
+
+The MOVE uses the OLD name as `name_from`, the NEW name as `name_to`, the NEW row's `op_seq`
+in `event_id` / `op_seq`, and the journal `wall` from the NEW row as event `time`. A helpful
+simplification that coalesces only inside one ledger, or that takes MOVE time from the OLD
+row, does not match fit expecteds or this contract.
 
 A `RENAME_NEW` that is not preceded by a matching `RENAME_OLD` on the same incarnation is a
 standalone `RENAME_NEW` event.
 
 ## Time authority
 
-When an operation has journal evidence (it appears in the ordered oplog or as an inserted
-txnlog-only row), that row's `wall` is the event time. Object-table SI times are authoritative
-only for residual end-state facts that have no journal evidence.
+When an operation has journal evidence (ordered oplog or inserted txnlog-only row), that
+row's `wall` is the event time. Object-table SI times are authoritative only for residual
+end-state facts that have no journal evidence.
 
 If an incarnation has at least one journalled event, ownership names and streams come only
 from those journalled events (and the poison rules below). Object-table rows for that
 incarnation do not add unmatched names or streams. If an incarnation has zero journalled
-events (SI-only residual), adopt its object-table names and streams that are not already
-in `poisoned_paths`. No-revive applies to residual object-table adoption: never adopt a
-name that is already poisoned, even when that name appears only on an SI-only row.
-Streams on SI-only residuals are still adopted when not otherwise forbidden. There is no
-sweep into other incarnations and no stay-put of conflicting object-table path claims once
-poison applies.
+events (SI-only residual), adopt its object-table names and streams that are not already in
+`poisoned_paths`. No-revive applies to residual object-table adoption: never adopt a name that
+is already poisoned, even when that name appears only on an SI-only row. Streams on SI-only
+residuals are still adopted when not otherwise forbidden.
 
 ## Streams and generation boundaries
 
@@ -84,18 +85,12 @@ those claims, the path becomes poisoned at the first such conflict. A poisoned p
 from every incarnation's `names` list and is listed once in `poisoned_paths`. After poison,
 later claims must not revive the path into any incarnation's `names` (no revive).
 
-## Fit pack
+## Fit packs
 
-`/app/data/fit/alpha/` includes ledgers and `/app/data/fit/alpha/smoke_digests.json`.
-Those smoke digests are sha256 hashes of the JSON text produced by the shipped almost-correct
-multi-module helper package (`/app/engine/`, orchestration via `pipeline.py`, thin `starter.py`
-re-export) on the fit ledgers. They are a non-normative smoke check for that fit-smoke-calibrated
-scaffold only. They are not graded normative expected timeline or ownership documents for work
-cases. Graded behavior is uniquely determined by the end-state invariants in this contract
-together with the fit ledger topology (identity, schemas, serialization, ownership/poison/stream
-invariants, wrap oldest-first, MOVE coalesce adjacency, corpus_index schema).
-
-Passing fit smoke does not imply a correct work-case reconstruction.
+Every directory under `/app/data/fit/` is a disclosed fit case. Each includes ledgers and
+normative `expected/timeline.json` plus `expected/ownership.json`. Those expected documents
+are authoritative for inducing closed rules. Fit topologies are not isomorphic copies of work
+cases. Passing a local check against fit expecteds does not by itself grade work outputs.
 
 ## Work packs
 

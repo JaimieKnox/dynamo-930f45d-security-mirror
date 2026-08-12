@@ -1,0 +1,39 @@
+{
+  "incarnations": [
+    {
+      "id": "30:1",
+      "slot": 30,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "c_s1",
+        "meta": "c_meta"
+      }
+    },
+    {
+      "id": "30:2",
+      "slot": 30,
+      "gen": 2,
+      "names": [
+        "charlie/live.bin"
+      ],
+      "streams": {
+        "$DATA": "c_g2",
+        "fresh": "c_fresh"
+      }
+    },
+    {
+      "id": "31:1",
+      "slot": 31,
+      "gen": 1,
+      "names": [
+        "charlie/orphan.txt",
+        "charlie/solo.txt"
+      ],
+      "streams": {
+        "$DATA": "c_solo2"
+      }
+    }
+  ],
+  "poisoned_paths": []
+}

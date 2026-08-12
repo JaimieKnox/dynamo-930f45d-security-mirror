@@ -1,0 +1,51 @@
+{
+  "incarnations": [
+    {
+      "id": "10:1",
+      "slot": 10,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "a_r1b",
+        "meta": "a_meta"
+      }
+    },
+    {
+      "id": "10:2",
+      "slot": 10,
+      "gen": 2,
+      "names": [
+        "alpha/root2.bin"
+      ],
+      "streams": {
+        "$DATA": "a_r2b"
+      }
+    },
+    {
+      "id": "11:1",
+      "slot": 11,
+      "gen": 1,
+      "names": [
+        "alpha/carrier_link.txt",
+        "alpha/carrier_v2.txt"
+      ],
+      "streams": {
+        "$DATA": "a_car",
+        "note": "a_note"
+      }
+    },
+    {
+      "id": "12:1",
+      "slot": 12,
+      "gen": 1,
+      "names": [
+        "alpha/ghost.txt"
+      ],
+      "streams": {
+        "$DATA": "a_ghost",
+        "aux": "a_aux"
+      }
+    }
+  ],
+  "poisoned_paths": []
+}

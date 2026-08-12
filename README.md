@@ -4,11 +4,11 @@ Reconstruct reincarnated host artifact timelines from a synthetic forensic vault
 
 ## Approach
 
-Induce closed reconstruction rules from `/app/data/docs/CONTRACT.md` and the disclosed fit pack, then apply them to held work cases. Identity is `(slot, gen)`. Renames coalesce to MOVE. Journal wall times beat SI times. Oplog wrap seams use txnlog for gaps. Streams do not inherit across generations. Conflicting path claims poison with no revive.
+Induce closed reconstruction rules from `/app/data/docs/CONTRACT.md` and disclosed fit packs under `/app/data/fit/*/expected/`, then apply them to held work cases. Identity is `(slot, gen)`. Renames coalesce to MOVE after full chronological merge, with MOVE wall from NEW. Journal wall times beat SI times. Oplog wrap seams use txnlog for gaps. Streams do not inherit across generations. Conflicting path claims poison with no revive.
 
 ## Environment
 
-Python 3.13 slim image with pytest baked in. Case ledgers live under `/app/data/`.
+Python 3.13 slim image with pytest baked in. Case ledgers live under `/app/data/`. No reconstruction engine package is shipped in the environment image.
 
 ## Verification
 
