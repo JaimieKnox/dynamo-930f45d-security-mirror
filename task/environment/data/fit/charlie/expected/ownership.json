@@ -1,0 +1,72 @@
+{
+  "incarnations": [
+    {
+      "id": "40:1",
+      "slot": 40,
+      "gen": 1,
+      "names": [
+        "charlie/base.txt"
+      ],
+      "streams": {
+        "$DATA": "charlie_base3"
+      }
+    },
+    {
+      "id": "41:1",
+      "slot": 41,
+      "gen": 1,
+      "names": [],
+      "streams": {
+        "$DATA": "charlie_note",
+        "tag": "charlie_tag"
+      }
+    },
+    {
+      "id": "42:1",
+      "slot": 42,
+      "gen": 1,
+      "names": [
+        "charlie/claim.txt",
+        "charlie/claim_alt.txt"
+      ],
+      "streams": {
+        "$DATA": "charlie_claim2"
+      }
+    },
+    {
+      "id": "43:1",
+      "slot": 43,
+      "gen": 1,
+      "names": [
+        "charlie/side.txt",
+        "charlie/side_link.txt"
+      ],
+      "streams": {
+        "$DATA": "charlie_side"
+      }
+    },
+    {
+      "id": "44:1",
+      "slot": 44,
+      "gen": 1,
+      "names": [
+        "charlie/pad.txt"
+      ],
+      "streams": {
+        "$DATA": "charlie_pad"
+      }
+    },
+    {
+      "id": "45:1",
+      "slot": 45,
+      "gen": 1,
+      "names": [
+        "charlie/ghost.txt"
+      ],
+      "streams": {
+        "$DATA": "charlie_ghost"
+      }
+    }
+  ],
+  "poisoned_paths": []
+}

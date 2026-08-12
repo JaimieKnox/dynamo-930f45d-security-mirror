@@ -349,18 +349,22 @@ def build_corpus_index(work_root: Path) -> dict[str, Any]:
     incarnation_count = 0
     move_event_count = 0
     name_claim_count = 0
+    chain_tips: dict[str, str] = {}
     for cid in case_ids:
         timeline, ownership = reconstruct_case(work_root / cid)
         poisoned.update(ownership.get("poisoned_paths") or [])
         incarnation_count += len(ownership.get("incarnations") or [])
         move_event_count += sum(1 for ev in timeline if ev.get("kind") == "MOVE")
         name_claim_count += sum(len(inc.get("names") or []) for inc in ownership.get("incarnations") or [])
+        if timeline:
+            chain_tips[cid] = timeline[-1]["chain"]
     return {
         "case_ids": case_ids,
         "poisoned_paths": sorted(poisoned),
         "incarnation_count": incarnation_count,
         "move_event_count": move_event_count,
         "name_claim_count": name_claim_count,
+        "chain_tips": chain_tips,
     }
 
 

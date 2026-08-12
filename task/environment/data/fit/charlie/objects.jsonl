@@ -1,0 +1,6 @@
+{"slot": 40, "gen": 1, "names": ["charlie/base.txt"], "streams": {"$DATA": "charlie_base3"}, "si_mtime": 190, "si_ctime": 190, "si_btime": 100}
+{"slot": 41, "gen": 1, "names": [], "streams": {"$DATA": "charlie_note", "tag": "charlie_tag"}, "si_mtime": 1, "si_ctime": 1, "si_btime": 1}
+{"slot": 42, "gen": 1, "names": ["charlie/claim_alt.txt"], "streams": {"$DATA": "charlie_claim2"}, "si_mtime": 160, "si_ctime": 160, "si_btime": 140}
+{"slot": 43, "gen": 1, "names": ["charlie/side.txt", "charlie/side_link.txt"], "streams": {"$DATA": "charlie_side"}, "si_mtime": 180, "si_ctime": 180, "si_btime": 170}
+{"slot": 44, "gen": 1, "names": ["charlie/pad.txt"], "streams": {"$DATA": "charlie_pad"}, "si_mtime": 210, "si_ctime": 210, "si_btime": 210}
+{"slot": 45, "gen": 1, "names": ["charlie/ghost.txt"], "streams": {"$DATA": "charlie_ghost"}, "si_mtime": 5, "si_ctime": 5, "si_btime": 1}

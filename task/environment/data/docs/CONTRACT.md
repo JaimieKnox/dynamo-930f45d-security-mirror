@@ -45,9 +45,12 @@ of an adjacent pair come from different ledgers (one oplog row and one txnlog-on
 insert) they still coalesce into MOVE. Ledger origin must not block coalesce.
 
 Coalesced MOVE field values for `time`, `op_seq`, and `event_id`, and the timeline `chain`
-hashes, follow the legacy vault exporter behavior demonstrated by the normative fit expected
-timelines under `/app/data/fit/*/expected/`. The rename halves still supply `name_from`
-(OLD name) and `name_to` (NEW name).
+hashes, follow the legacy vault exporter behavior demonstrated by normative fit expected
+timelines such as `/app/data/fit/alpha/expected/timeline.json`,
+`/app/data/fit/bravo/expected/timeline.json`, and `/app/data/fit/charlie/expected/timeline.json`.
+Every pack has `/app/data/fit/<id>/expected/timeline.json` and
+`/app/data/fit/<id>/expected/ownership.json`. The rename halves still supply `name_from`
+(OLD name) and `name_to` (NEW name). Coalesced MOVE `time` uses the RENAME_OLD wall.
 
 The coalesced MOVE replaces both rename fragments in the timeline.
 
@@ -92,7 +95,11 @@ later claims must not revive the path into any incarnation's `names` (no revive)
 ## Fit packs
 
 Every subdirectory of `/app/data/fit/` is a disclosed fit pack. Each pack includes ledgers and
-normative worked examples at `expected/timeline.json` and `expected/ownership.json`.
+normative worked examples such as `/app/data/fit/alpha/expected/timeline.json`,
+`/app/data/fit/alpha/expected/ownership.json`, `/app/data/fit/bravo/expected/timeline.json`,
+`/app/data/fit/bravo/expected/ownership.json`, `/app/data/fit/charlie/expected/timeline.json`,
+and `/app/data/fit/charlie/expected/ownership.json`. Every pack has
+`/app/data/fit/<id>/expected/timeline.json` and `/app/data/fit/<id>/expected/ownership.json`.
 
 Those expected documents are normative illustrations of this contract on the fit ledgers.
 Induce closed rules from this contract together with every fit pack's expected documents.
@@ -104,7 +111,8 @@ needed for graded work cases.
 Graded work-case behavior is uniquely determined by the end-state invariants in this contract
 together with the fit expected illustrations (identity, schemas, serialization, ownership /
 poison / stream invariants, wrap oldest-first, MOVE coalesce adjacency and legacy exporter
-fields, timeline sort order, chain hashes, corpus_index schema including `name_claim_count`).
+fields including OLD wall for MOVE `time`, timeline sort order, chain hashes, corpus_index
+schema including `name_claim_count` and `chain_tips`).
 
 ## Work packs
 
@@ -159,6 +167,9 @@ order is `incarnations` then `poisoned_paths`. Incarnation object key order is
 - `incarnation_count` (integer): sum of incarnation array lengths across cases
 - `move_event_count` (integer): sum of timeline events with `kind` equal to `MOVE` across cases
 - `name_claim_count` (integer): sum of `len(names)` across every incarnation across cases
+- `chain_tips` (object map): `case_id` to the last timeline event's `chain` for that case
+  (omit cases with an empty timeline). Keys are sorted ascending in serialization.
 
 Serialize with UTF-8, `ensure_ascii` false, 2-space indent, trailing newline. Top-level key
-order is `case_ids`, `poisoned_paths`, `incarnation_count`, `move_event_count`, `name_claim_count`.
+order is `case_ids`, `poisoned_paths`, `incarnation_count`, `move_event_count`,
+`name_claim_count`, `chain_tips`.

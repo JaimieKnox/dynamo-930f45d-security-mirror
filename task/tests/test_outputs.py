@@ -211,6 +211,7 @@ def test_ownership_incarnations_streams_and_poison():
         assert "hotel/ghost.txt" in ghost["names"]
         root2 = next(i for i in exp_hotel_own["incarnations"] if i["id"] == "80:2")
         assert "meta" not in root2["streams"]
+        assert len(exp_hotel_tl) >= 45
 
 
 def test_corpus_index_schema_and_byte_contract():
@@ -224,6 +225,7 @@ def test_corpus_index_schema_and_byte_contract():
         "incarnation_count",
         "move_event_count",
         "name_claim_count",
+        "chain_tips",
     ]
     assert data["case_ids"] == list(_case_ids(seal))
     assert "golf" in data["case_ids"]
@@ -232,5 +234,12 @@ def test_corpus_index_schema_and_byte_contract():
     assert type(data["incarnation_count"]) is int
     assert type(data["move_event_count"]) is int
     assert type(data["name_claim_count"]) is int
+    assert isinstance(data["chain_tips"], dict)
+    assert list(data["chain_tips"].keys()) == sorted(data["chain_tips"].keys())
+    assert set(data["chain_tips"]) == set(data["case_ids"])
+    for cid, tip in data["chain_tips"].items():
+        exp_tl, _ = _expected(seal, cid)
+        assert tip == exp_tl[-1]["chain"]
+    assert "hotel" in data["chain_tips"]
     assert raw == seal["corpus_index_text"]
     assert data == seal["corpus_index"]
